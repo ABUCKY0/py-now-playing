@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "py-now-playing"
 version = "0.1.0"
-description = ""
+description = "A Python Library to get the currently playing media"
 authors = ["ABUCKY0 <81783950+ABUCKY0@users.noreply.github.com>"]
 readme = "README.md"
 
