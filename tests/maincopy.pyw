@@ -8,10 +8,17 @@ from pypresence.exceptions import InvalidID
 import time
 import multiprocessing
 import logging
+import os
+import sys
 import traceback
 
 # Set up logging
-logging.basicConfig()
+logging.basicConfig(level=logging.NOTSET)
+# Set up logging to a file
+logging.basicConfig(filename='app.log', level=logging.INFO)
+# Disable logging to consile with sys
+sys.stdout = open(os.devnull, 'w')
+sys.stderr = open(os.devnull, 'w')
 logger = logging.getLogger(__name__)
 
 def start_rpc(client_id, now_playing_queue):
@@ -46,7 +53,7 @@ def start_rpc(client_id, now_playing_queue):
                     large_text='Amazon Music',
                 )
             else:
-                logger.info("No music playing")
+                logger.info("No Music Playing")
                 rpc.clear()
         except:
             connect_rpc()
@@ -69,7 +76,7 @@ async def main():
     try:
         while True:
             now_playing = await np.get_active_app_user_model_ids()
-            now_playing = [app for app in now_playing if app['Name'] == 'Amazon Music.exe']
+            now_playing = list(filter(lambda app: app['Name'] == 'Amazon Music', now_playing))
 
             if not now_playing:
                 now_playing_queue.put(None)
@@ -79,7 +86,7 @@ async def main():
             now_playing_appid = now_playing[0]['AppID']
             data = await np.get_now_playing(now_playing_appid)
             now_playing_queue.put(data)
-            logger.info("main" + str(data))
+            logger.info("A Song is Playing, Here is the Json for that: " + str(data))
             await asyncio.sleep(5)
     except KeyboardInterrupt:
         logger.info("Interrupted by user, stopping processes...")
@@ -88,10 +95,13 @@ async def main():
         asyncio.get_event_loop().stop()
     except OSError as e:
         logger.error(e)
+        
+        traceback.print_exc(e)
         now_playing_queue.put(None)
     except Exception as e:
         logger.error(f"Unexpected error in main: {e}")
         traceback.print_exc(e)
+        pass
 
 if __name__ == '__main__':
     try:
