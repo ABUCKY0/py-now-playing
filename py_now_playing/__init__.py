@@ -1,8 +1,11 @@
 import asyncio
 from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessionManager as MediaManager
+from winsdk.windows.storage.streams import DataReader as DataReader
 import json
 import subprocess
 from typing import List, Optional, Dict
+from PIL import Image
+import io
 
 class NowPlaying:
     def __init__(self):
@@ -51,3 +54,21 @@ class NowPlaying:
                 if info is not None:
                     return info
         return None
+
+    async def thumbnail_to_image(self, thumbnail):
+        # Get the thumbnail stream
+        stream = await thumbnail.open_read_async()
+        # Get the size of the stream
+        size = stream.size
+        # Read the stream into a buffer
+        reader = stream.get_input_stream_at(0)
+        # Create a DataReader to read the stream
+        data_reader = DataReader(reader)
+        # Load the stream into the DataReader
+        await data_reader.load_async(size)
+        # Read the buffer into a byte array
+        buffer = data_reader.read_buffer(size)
+        byte_array = bytearray(buffer)
+        # Create a PIL image from the byte array
+        image = Image.open(io.BytesIO(byte_array))
+        return image

@@ -1,10 +1,11 @@
 # .gitignore
 
 # Python
-__pycache__/
+__pycache__/*
 *.py[cod]
 *.pyd
 *.pyo
+*.pyc
 *.so
 *.egg
 *.egg-info/
@@ -15,6 +16,3 @@ build/
 
 # Poetry
 /.venv
-
-# Tests
-/Tests
