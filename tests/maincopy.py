@@ -73,7 +73,7 @@ async def main():
     try:
         while True:
             now_playing = await np.get_active_app_user_model_ids()
-            now_playing = [app for app in now_playing if app['Name'] == 'Amazon Music']
+            now_playing = list(filter(lambda app: app['Name'] == 'Amazon Music', now_playing))
 
             if not now_playing:
                 now_playing_queue.put(None)

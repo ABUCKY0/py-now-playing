@@ -5,15 +5,19 @@ This project started as me wanting to create a Discord RPC that would take the c
 
 # How to use
 
-Instantiate the Class using `py_now_playing.create()`. You ***MUST*** use the create method. You can however use the create method as if you instantiated just the class. 
+```py
+# Initalize the Class
+np = NowPlaying()
 
-Then, you can use the different methods I haven't documented that aren't preflixed with an _ in py_now_playing/\_\_init\_\_.py
+#initalize the mediamanager
+np.initalize_mediamanager()
+```
 
-If you're running an audio application, but you don't know what the AppID is, (App IDs are how the Windows SDK refers to apps), run `get_active_app_audio_model_ids()` to get a list of all applications that are currently playing audio, with their name and their app id.
+To get the active media apps, use `get_active_app_user_model_ids()`.
+Then you can use a filter or a loop to find the application you're looking for.
+`list(filter(lambda app: app['Name'] == 'App Name', now_playing))`
 
-Then taking that AppID from above, you can pass it into `get_now_playing()`, which will return the currently playing audio for that application. 
-
-If you want the thumbnail, take the thumbnail portion of the above method, and pass that into `thumbnail_to_image()`, which will return a PIL (Pillow) Image.
+Then use something like `now_playing[0]['AppID']` to get the appid from the filter, and pass that into `get_now_playing(app_user_model_id)` to get the currently playing media for that application.
  
 ## Other Notes
 
