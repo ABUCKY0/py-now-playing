@@ -22,3 +22,6 @@ I've noticed that even when using Firefox and watching YouTube videos, that the 
 
 
 Note that if you're testing the Amazon Music RPC I made in /tests, because Amazon has a skill issue Amazon Music doesn't always report the current song to Windows properly, so it may not appear correct.
+
+
+![image](https://github.com/ABUCKY0/py-now-playing/assets/81783950/ad175e42-8fbe-4a64-824c-f1c6ef173bbb)
