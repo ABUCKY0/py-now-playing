@@ -29,3 +29,4 @@ Note that if you're testing the Amazon Music RPC I made in /tests, because Amazo
 
 
 ![image](https://github.com/ABUCKY0/py-now-playing/assets/81783950/ad175e42-8fbe-4a64-824c-f1c6ef173bbb)
+Above: The Discord RPC Application using Py Now Playing and Pypresence
