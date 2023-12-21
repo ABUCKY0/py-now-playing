@@ -8,11 +8,16 @@ from pypresence.exceptions import InvalidID
 import time
 import multiprocessing
 import logging
+import os
+import sys
 
+sys.stdout = open(os.devnull, 'w')
+sys.stderr = open(os.devnull, 'w')
 # Set up logging
-logging.basicConfig()
 logging.disable(logging.NOTSET)
-logger = logging.getLogger(__name__)
+# Set up logging to a file
+logging.basicConfig(filename='app.log', level=logging.INFO)
+#logger = logging.get#logger(__name__)
 
 def start_rpc(client_id, now_playing_queue):
     loop = asyncio.new_event_loop()
@@ -23,12 +28,12 @@ def start_rpc(client_id, now_playing_queue):
     def connect_rpc():
         while True:
             try:
-                logger.info("try to connect")
+                #logger.info("try to connect")
                 rpc.connect()
-                logger.info("Connected to Discord RPC")
+                #logger.info("Connected to Discord RPC")
                 break
             except Exception as e:
-                logger.error(f"Failed to connect to Discord RPC: {e}")
+                #logger.error(f"Failed to connect to Discord RPC: {e}")
                 time.sleep(15)
 
     # Call connect_rpc directly
@@ -37,7 +42,7 @@ def start_rpc(client_id, now_playing_queue):
     while True:
         try:
             now_playing_list = now_playing_queue.get()
-            logger.info(now_playing_list)
+            #logger.info(now_playing_list)
             if now_playing_list:
                 rpc.update(
                     details=now_playing_list['title'] or "Unknown Song", 
@@ -46,7 +51,7 @@ def start_rpc(client_id, now_playing_queue):
                     large_text='Amazon Music',
                 )
             else:
-                logger.info("No music playing")
+                #logger.info("No music playing")
                 rpc.clear()
         except:
             connect_rpc()
@@ -78,22 +83,23 @@ async def main():
             now_playing_appid = now_playing[0]['AppID']
             data = await np.get_now_playing(now_playing_appid)
             now_playing_queue.put(data)
-            logger.info("main" + str(data))
+            #logger.info("main" + str(data))
             await asyncio.sleep(5)
     except KeyboardInterrupt:
-        logger.info("Interrupted by user, stopping processes...")
+        #logger.info("Interrupted by user, stopping processes...")
         rpc_process.terminate()  # Terminate the rpc_process
         # Kill the event loop
         asyncio.get_event_loop().stop()
     except OSError as e:
-        logger.error(e)
+        #logger.error(e)
         now_playing_queue.put(None)
     except Exception as e:
-        logger.error(f"Unexpected error in main: {e}")
+        #logger.error(f"Unexpected error in main: {e}")
+        pass
 
 if __name__ == '__main__':
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        logger.info("Interrupted by user, caught in if, exiting...")
+        #logger.info("Interrupted by user, caught in if, exiting...")
         sys.exit(0)

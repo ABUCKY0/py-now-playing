@@ -35,11 +35,12 @@ class NowPlaying:
                         info_dict['genres'] = list(info_dict['genres'])
                         return info_dict
                 except Exception as e:
-                    print(f"Failed to get media properties: {e}")
+                    #print(f"Failed to get media properties: {e}")
+                    pass
         return None
 
     async def get_active_app_audio_model_ids(self):
-        amuids = subprocess.check_output(["powershell.exe", "Get-StartApps | ConvertTo-Json"], shell=False)
+        amuids = subprocess.check_output(["powershell.exe", "Get-StartApps | ConvertTo-Json"], shell=False, creationflags=subprocess.CREATE_NO_WINDOW)
         active_amuids = await self._get_app_user_model_ids()
         amuids = json.loads(amuids)
         return [app for app in amuids if app['AppID'] in active_amuids]

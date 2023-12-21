@@ -16,3 +16,5 @@ build/
 
 # Poetry
 /.venv
+
+py_now_playing/__pycache__/
