@@ -1,2 +1,20 @@
-dist
-*__pycache__*
+# .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.egg-info/
+*.eggs/
+
+# Poetry
+/.venv
+
+# Tests
+/Tests
