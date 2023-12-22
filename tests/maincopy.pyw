@@ -4,6 +4,7 @@ sys.path.append('..')
 import py_now_playing
 import asyncio
 from pypresence import Presence
+import pypresence.exceptions
 from pypresence.exceptions import InvalidID
 import time
 import multiprocessing
@@ -13,12 +14,14 @@ import sys
 import traceback
 
 # Set up logging
-logging.basicConfig(level=logging.NOTSET)
+#logging.basicConfig(level=logging.NOTSET)
+logging.basicConfig(level=logging.INFO)
 # Set up logging to a file
 logging.basicConfig(filename='app.log', level=logging.INFO)
+
 # Disable logging to consile with sys
-sys.stdout = open(os.devnull, 'w')
-sys.stderr = open(os.devnull, 'w')
+#sys.stdout = open(os.devnull, 'w')
+#sys.stderr = open(os.devnull, 'w')
 logger = logging.getLogger(__name__)
 
 def start_rpc(client_id, now_playing_queue):
@@ -36,6 +39,7 @@ def start_rpc(client_id, now_playing_queue):
                 break
             except Exception as e:
                 logger.error(f"Failed to connect to Discord RPC: {e}")
+                traceback.print_exc()
                 time.sleep(15)
 
     # Call connect_rpc directly
@@ -55,8 +59,14 @@ def start_rpc(client_id, now_playing_queue):
             else:
                 logger.info("No Music Playing")
                 rpc.clear()
-        except:
+        except pypresence.exceptions.DiscordNotFound or pypresence.exceptions.InvalidPipe as e:
             connect_rpc()
+        except BrokenPipeError or EOFError as f:
+            logger.error(f"BrokenPipeError: {f}")
+            traceback.print_exc()
+        except EOFError or UnboundLocalError as g:
+            logger.error(f"EOFError: {g}")
+            traceback.print_exc()
 
         time.sleep(5)
 
@@ -84,7 +94,13 @@ async def main():
                 continue
 
             now_playing_appid = now_playing[0]['AppID']
-            data = await np.get_now_playing(now_playing_appid)
+            try:
+                data = await np.get_now_playing(now_playing_appid)
+            except PermissionError as permerr:
+                logger.error("PermissionError: ")
+                traceback.print_exc()
+                data = None
+                pass
             now_playing_queue.put(data)
             logger.info("A Song is Playing, Here is the Json for that: " + str(data))
             await asyncio.sleep(5)
@@ -96,11 +112,11 @@ async def main():
     except OSError as e:
         logger.error(e)
         
-        traceback.print_exc(e)
+        traceback.print_exc()
         now_playing_queue.put(None)
     except Exception as e:
         logger.error(f"Unexpected error in main: {e}")
-        traceback.print_exc(e)
+        traceback.print_exc()
         pass
 
 if __name__ == '__main__':

@@ -18,3 +18,5 @@ build/
 /.venv
 
 py_now_playing/__pycache__/
+
+*.log
