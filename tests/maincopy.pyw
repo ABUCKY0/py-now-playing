@@ -59,7 +59,7 @@ def start_rpc(client_id, now_playing_queue):
             else:
                 logger.info("No Music Playing")
                 rpc.clear()
-        except pypresence.exceptions.DiscordNotFound or pypresence.exceptions.InvalidPipe as e:
+        except (pypresence.exceptions.DiscordNotFound, pypresence.exceptions.InvalidPipe, pypresence.PipeClosed) as e:
             connect_rpc()
         except BrokenPipeError or EOFError as f:
             logger.error(f"BrokenPipeError: {f}")
@@ -110,7 +110,7 @@ async def main():
         # Kill the event loop
         asyncio.get_event_loop().stop()
     except OSError as e:
-        logger.error(e)
+        logger.error(f"OSError {e}")
         
         traceback.print_exc()
         now_playing_queue.put(None)
