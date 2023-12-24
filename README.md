@@ -2,7 +2,7 @@
 
 This project started as me wanting to create a Discord RPC that would take the currently playing audio from a specified application, and put that onto my Discord activity. I found some windows apis that allow me to do this, however they weren't intuitive to use. So, I started this. 
 
-
+Note that this class utilizes asyncio, so you may need to use await when using this class.
 # How to use
 
 ```py
@@ -10,7 +10,7 @@ This project started as me wanting to create a Discord RPC that would take the c
 np = NowPlaying()
 
 #initalize the mediamanager
-np.initalize_mediamanager()
+await np.initalize_mediamanager()
 ```
 
 To get the active media apps, use `get_active_app_user_model_ids()`.
