@@ -12,7 +12,8 @@ import logging
 import os
 import sys
 import traceback
-
+import re
+import requests
 # Set up logging
 #logging.basicConfig(level=logging.NOTSET)
 logging.basicConfig(level=logging.INFO)
@@ -23,6 +24,40 @@ logging.basicConfig(filename='C:/Users/buckn/OneDrive/Documents/py-now-playing/t
 #sys.stdout = open(os.devnull, 'w')
 #sys.stderr = open(os.devnull, 'w')
 #logging = logging.getlogging(__name__)
+
+
+def get_album_art(artist, title):
+    # adapted from https://github.com/NextFire/apple-music-discord-rpc/blob/main/music-rpc.ts#L186
+    # Uses https://musicbrainz.org/
+    # Uses https://coverartarchive.org/
+    def lucene_escape(term):
+        return re.sub(r'([+\-&|!(){}\[\]^"~*?:\\])', r'\\\1', term)
+
+    def remove_parentheses_content(term):
+        return re.sub(r'\([^)]*\)', '', term).strip()
+    query_terms = []
+    MB_EXCLUDED_NAMES = ['Various Artists', 'Various', 'Unknown Artist', 'Unknown']
+    if not all(elem in artist for elem in MB_EXCLUDED_NAMES):
+        query_terms.append(f'artist:"{lucene_escape(remove_parentheses_content(artist))}"')
+    if title is not None:
+        query_terms.append(f'recording:"{lucene_escape(remove_parentheses_content(title))}"')
+    query = " ".join(query_terms)
+
+    params = {
+        'fmt': 'json',
+        'limit': '10',
+        'query': query,
+    }
+
+    resp = requests.get('https://musicbrainz.org/ws/2/release', params=params)
+    json = resp.json()
+
+    for release in json['releases']:
+        resp = requests.get(f'https://coverartarchive.org/release/{release["id"]}/front')
+        if resp.status_code == 200:
+            print(resp.url)
+            return resp.url
+    return None
 
 def start_rpc(client_id, now_playing_queue):
     loop = asyncio.new_event_loop()
@@ -50,10 +85,11 @@ def start_rpc(client_id, now_playing_queue):
             now_playing_list = now_playing_queue.get()
             logging.info(now_playing_list)
             if now_playing_list:
+                print("retrieved now_playing_list" + str(now_playing_list))
                 rpc.update(
                     details=now_playing_list['title'] or "Unknown Song", 
                     state='by ' + now_playing_list['artist'] if now_playing_list['artist'] is not None else 'by Unknown Artist',
-                    large_image='https://pro2-bar-s3-cdn-cf4.myportfolio.com/42020405547ae2dc93d34e8df7965fc4/5d5b55e2-c1b4-46cb-a027-6a21bee9de3f_rw_1920.gif?h=85babbd0e5d4aa7c618295a359c1811f',  # Replace with your image key
+                    large_image=get_album_art(now_playing_list['artist'],now_playing_list['title']),  # Replace with your image key
                     large_text='Amazon Music',
                 )
             else:
@@ -86,20 +122,29 @@ async def main():
     try:
         while True:
             now_playing = await np.get_active_app_user_model_ids()
-            now_playing = list(filter(lambda app: app['AppID'] == 'AmazonMobileLLC.AmazonMusic_kc6t79cpj4tp0!AmazonMobileLLC.AmazonMusic', now_playing))
-
-            print(now_playing)
+            print (now_playing)
+            #now_playing = list(filter(lambda app: app['Name'] == 'Amazon Music', now_playing))
+            # AppID Specifically I'm looking for is Chrome._crx_mnlencgjbmniianjkpemfocoke
+            now_playing = list(filter(lambda app: app['AppID'] == 'Chrome._crx_mnlencgjbmniianjkpemfocoke', now_playing))
             if not now_playing:
                 now_playing_queue.put(None)
                 await asyncio.sleep(5)
                 continue
+
             now_playing_appid = now_playing[0]['AppID']
             try:
                 data = await np.get_now_playing(now_playing_appid)
+                # if 'thumbnail' in data:
+                #     del data['thumbnail']
+                
+                # Turn thumbnail into a photo using async def thumbnail_to_image(self, thumbnail):
+                if 'thumbnail' in data:
+                    data['thumbnail'] = await np.thumbnail_to_image(data['thumbnail'])
+                
             except PermissionError as permerr:
-                logging.error("PermissionError: ")
-                traceback.print_exc()
-                data = None
+                # logging.error("PermissionError: ")
+                # traceback.print_exc()
+                # data = None
                 pass
             now_playing_queue.put(data)
             logging.info("A Song is Playing, Here is the Json for that: " + str(data))
