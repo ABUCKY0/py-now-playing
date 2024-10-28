@@ -14,7 +14,7 @@ class NowPlaying:
         if media_manager is not None:
             self._manager = media_manager
 
-    async def initalize_mediamanger(self) -> None:
+    async def initalize_mediamanager(self) -> None:
         """Initalizes the MediaManager"""
         self._manager = await MediaManager.request_async()
     async def _get_sessions(self) -> List[MediaManager]:
