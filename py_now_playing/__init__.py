@@ -24,13 +24,22 @@ class NowPlaying:
         """
         return self._manager.get_sessions()
 
-    async def _get_app_user_model_ids(self) -> List[str]:
-        """Gets the AppUserModelIds from the MediaManager
+    async def get_active_app_user_model_ids(self):
+        """
+       Gets the AppUserModelIds from the MediaManager
 
         @return: The AppUserModelIds from the MediaManager
         """
-        sessions = await self._get_sessions()
-        return [session.source_app_user_model_id for session in sessions]
+        
+        amuids = subprocess.check_output(
+            ["powershell.exe", "Get-StartApps | ConvertTo-Json"],
+            shell=False,
+            creationflags=subprocess.CREATE_NO_WINDOW
+        ).decode('latin-1')
+        
+        active_amuids = await self._get_app_user_model_ids()
+        amuids = json.loads(amuids)
+        return [app for app in amuids if app['AppID'] in active_amuids]
 
     async def _get_now_playing_info(self, app_user_model_id: str) -> Dict[str, str] | None:
         """Gets the now playing info from the MediaManager
