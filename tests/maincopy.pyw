@@ -86,7 +86,7 @@ async def main():
     try:
         while True:
             now_playing = await np.get_active_app_user_model_ids()
-            now_playing = list(filter(lambda app: app['AppID'] == 'AmazonMobileLLC.AmazonMusic_kc6t79cpj4tp0!AmazonMobileLLC.AmazonMusic', now_playing))
+            now_playing = list(filter(lambda app: app['AppID'] == 'ChromeDev._crx_hjlgoickghknhfichlenalencg', now_playing))
 
             print(now_playing)
             if not now_playing:
@@ -96,6 +96,8 @@ async def main():
             now_playing_appid = now_playing[0]['AppID']
             try:
                 data = await np.get_now_playing(now_playing_appid)
+                # remove thumbnail
+                data.pop('thumbnail', None)
             except PermissionError as permerr:
                 logging.error("PermissionError: ")
                 traceback.print_exc()
