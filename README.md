@@ -28,5 +28,5 @@ I've noticed that even when using Firefox and watching YouTube videos, that the 
 Note that if you're testing the Amazon Music RPC I made in /tests, because Amazon has a skill issue Amazon Music doesn't always report the current song to Windows properly, so it may not appear correct.
 
 
-![image](https://github.com/ABUCKY0/py-now-playing/assets/81783950/ad175e42-8fbe-4a64-824c-f1c6ef173bbb)
-Above: The Discord RPC Application using Py Now Playing and Pypresence
+![image](https://github.com/user-attachments/assets/53b3bb1e-6c31-4385-970b-ba66384eec0d)  
+Above: An Amazon Music Discord RPC Application using Py Now Playing and Pypresence. Note that the album covers aren't the ones pulled from Windows, and are instead pulled from the Spotify API.
