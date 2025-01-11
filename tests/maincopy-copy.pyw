@@ -2,9 +2,11 @@ import sys
 sys.path.append('C:/Users/buckn/Documents/py-now-playing')
 import py_now_playing
 import asyncio
+# install dev build of pypresence = pip install https://github.com/qwertyquerty/pypresence/archive/f856ccaaeb2321f64f9692b75dc3ceda5c927f42.zip
 from pypresence import Presence
 import pypresence.exceptions
 from pypresence.exceptions import InvalidID
+from pypresence import ActivityType
 import time
 import multiprocessing
 import logging
@@ -87,18 +89,24 @@ def start_rpc(client_id, now_playing_queue):
                 if new_song != current_song:
                     current_song = new_song
                     rpc.update(
+                        activity_type = ActivityType.LISTENING,
                         details=now_playing_list['title'] or "Unknown Song", 
                         state='by ' + now_playing_list['artist'] if now_playing_list['artist'] is not None else 'by Unknown Artist',
                         large_image=get_album_art(now_playing_list['artist'], now_playing_list['title']),  # Replace with your image key
                         small_image="https://i.pinimg.com/736x/de/16/6c/de166cc1fbe405eb8f7725145f9a488a.jpg",
-                        small_text='Powered by py-now-playing, on Amazon Music')
+                        small_text='Powered by py-now-playing, on Amazon Music',
+                        start=int(time.time()),
+                        buttons=[{"label": "Powered by py-now-playing", "url": "https://github.com/abucky0/py-now-playing"}]
+                        )
+            else:
                 rpc.clear()
+                current_song = None
         except (pypresence.exceptions.DiscordNotFound, pypresence.exceptions.InvalidPipe, pypresence.PipeClosed) as e:
             connect_rpc()
-        except BrokenPipeError or EOFError as f:
+        except (BrokenPipeError, EOFError) as f:
             logging.error(f"BrokenPipeError: {f}")
             traceback.print_exc()
-        except EOFError or UnboundLocalError as g:
+        except (EOFError, UnboundLocalError) as g:
             logging.error(f"EOFError: {g}")
             traceback.print_exc()
         except Exception as e:
@@ -170,5 +178,9 @@ if __name__ == '__main__':
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        logging.info("Interrupted by user, caught in if, exiting...")
+        logging.error("KeyboardInterrupt-ed by user, caught in if, exiting...")
         sys.exit(0)
+    except Exception as e:
+        logging.error(f"Unexpected error in __main__: {e}")
+        traceback.print_exc()
+        sys.exit(1)
