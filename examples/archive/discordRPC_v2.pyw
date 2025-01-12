@@ -18,7 +18,7 @@ import SECRETS
 from datetime import datetime, timedelta
 from urllib.parse import quote
 # Set up logging
-logging.basicConfig(filename='C:/Users/buckn/Documents/py-now-playing/tests/app.log', level=logging.DEBUG)
+logging.basicConfig(filename='C:/Users/buckn/Documents/py-now-playing/example/app.log', level=logging.DEBUG)
 
 spotify_token = None
 token_expiration = None
