@@ -22,3 +22,4 @@ py_now_playing/__pycache__/
 *.log
 
 tests/secrets.py
+examples/secrets.py

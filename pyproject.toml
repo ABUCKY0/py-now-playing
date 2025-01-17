@@ -1,20 +1,25 @@
 [tool.poetry]
 name = "py-now-playing"
-version = "0.1.0"
+version = "0.2.0-dev"
 description = "A Python Library to get the currently playing media"
 authors = ["ABUCKY0 <81783950+ABUCKY0@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.9,<3.14"
 pillow = "^10.1.0"
-winsdk = "^1.0.0b10"
-
-[tool.poetry.dev-dependencies]
-asynctest = "^0.13.0"
+winrt-Windows-Media = "^2.3.0"
+winrt-windows-media-control = "^2.3.0"
+winrt-windows-storage = "^2.3.0"
+winrt-windows-storage-streams = "^2.3.0"
+winrt-windows-foundation = "^2.3.0"
+winrt-windows-foundation-collections = "^2.3.0"
 
 [tool.poetry.group.dev.dependencies]
 asynctest = "^0.13.0"
+pypresence = {url = "https://github.com/qwertyquerty/pypresence/archive/f856ccaaeb2321f64f9692b75dc3ceda5c927f42.zip"}
+requests = "^2.32.3"
+flet = "^0.25.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

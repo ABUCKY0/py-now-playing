@@ -1,33 +1,88 @@
 import unittest
-import asynctest
+# import asynctest
 from unittest.mock import MagicMock, patch
-from py_now_playing import NowPlaying  # replace 'your_module' with the name of the module that contains the NowPlaying class
+from py_now_playing import MediaPlaybackStatus, MediaPlaybackType, MediaPlaybackAutoRepeatMode, PlaybackInfo, MediaTimeline, PlaybackControls, MediaInfo
+import logging
+import time 
+import flet as ft
+from winrt.windows.media.control import TimelinePropertiesChangedEventArgs
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+import asyncio
 
-class TestNowPlaying(asynctest.TestCase):
-    def setUp(self):
-        self.now_playing = NowPlaying()
+async def main_test():
+  # logger.info("Creating NowPlaying object")
+  # np = NowPlaying()
+  
+  # logger.info("Initalizing MediaManager")
+  # await np.initalize_mediamanager()
+  
+  # logger.info("Getting active app user model ids")
+  # print(await NowPlaying.get_active_app_user_model_ids())
+  
+  # logger.info("Getting media info")
+  # print(await np.get_now_playing('ChromeDev._crx_hjlgoickghknhfichlenalencg'))
+  
+  
+  logger.info("Creating PlaybackControls object")
+  
+  pbc = PlaybackControls(
+      await PlaybackControls.get_aumid_by_name("Media Player"))
+  logger.info("Initalizing MediaManager")
+  await pbc.initalize_mediamanager()  
+  # logger.info("Pausing media")
+  # await pbc.pause()
+  # time.sleep(1)
+  
+  # logger.info("Playing media")
+  # logger.info("was successful?" + str(await pbc.play()))
+  
+  # logger.info("Toggling play/pause")
+  # await pbc.toggle_play_pause()
+  # time.sleep(1)
+  # await pbc.toggle_play_pause()
+  # #logger.info("Stopping media")
+  # #await pbc.stop()
+  # await pbc.record()
+  # await pbc.rewind()
+  # time.sleep(1)
+  # await pbc.previous_track()
+  # time.sleep(1)
+  # await pbc.next_track()
+  #logger.info(await pbc.get_timeline_properties())
+  await pbc.change_playback_rate(1.0)
+  
+  # # open thumbnail in photo viewer
+  # thumbnail = await pbc.get_thumbnail()
+  # thumbnail.show()
+  
+  await pbc.change_shuffle_active(True)
+  
+  def timeline_properties_changed(sender, args: MediaTimeline):
+    logger.info("Timeline properties changed")
+    logger.info(args)
+  
+  pbc.register_timeline_properties_changed_callback(timeline_properties_changed)
+  
+  
+  def playback_info_changed(sender, args: PlaybackInfo):
+    logger.info("Playback info changed")
+    logger.info(args)
+  
+  pbc.register_playback_info_changed_callback(playback_info_changed)
+  
+  def media_properties_changed(sender, args: MediaInfo):
+    logger.info("Media properties changed")
+    logger.info(args)
+    
+  pbc.register_media_properties_changed_callback(media_properties_changed)
+  time.sleep(5)
+  # stop
+  await pbc.stop()
+  
+  while(True):
+    time.sleep(1)
+  
+  
+asyncio.run(main_test())
 
-    @asynctest.patch('your_module.MediaManager.request_async')
-    async def test_initalize_mediamanger(self, mock_request_async):
-        mock_request_async.return_value = 'mock manager'
-        await self.now_playing.initalize_mediamanger()
-        self.assertEqual(self.now_playing._manager, 'mock manager')
-
-    async def test_get_sessions(self):
-        self.now_playing._manager = MagicMock()
-        self.now_playing._manager.get_sessions.return_value = ['session1', 'session2']
-        sessions = await self.now_playing._get_sessions()
-        self.assertEqual(sessions, ['session1', 'session2'])
-
-    @asynctest.patch('your_module.subprocess.check_output')
-    @asynctest.patch('your_module.json.loads')
-    async def test_get_active_app_user_model_ids(self, mock_loads, mock_check_output):
-        mock_check_output.return_value = 'mock output'
-        mock_loads.return_value = ['app1', 'app2']
-        self.now_playing._get_app_user_model_ids = asynctest.CoroutineMock()
-        self.now_playing._get_app_user_model_ids.return_value = ['app2']
-        active_app_ids = await self.now_playing.get_active_app_user_model_ids()
-        self.assertEqual(active_app_ids, ['app2'])
-
-if __name__ == '__main__':
-    asynctest.main()
