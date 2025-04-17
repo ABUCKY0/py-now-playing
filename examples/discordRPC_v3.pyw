@@ -31,7 +31,7 @@ from py_now_playing import PlaybackControls, PlaybackInfo, MediaInfo, MediaTimel
 # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG,
 #                    format='(%(filename)s:%(lineno)d) - %(asctime)s - %(message)s')
 logging.basicConfig(
-    filename='C:/Users/buckn/Documents/py-now-playing/examples/app.log', level=logging.DEBUG, format="(%(filename)s:%(lineno)d) - %(asctime)s - %(message)s")
+    filename='C:/Users/buckn/Documents/py-now-playing/examples/app.log', level=logging.DEBUG, format="(%(filename)s:%(lineno)d) [%(levelname)s] - %(asctime)s - %(message)s")
 # console debug logging
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
@@ -80,15 +80,15 @@ def get_album_art(artist, title):
       album_art_url = response_data['tracks']['items'][0]['album']['images'][0]['url']
       return album_art_url
     else:
-      logger.error("Failed to get album art: No items found")
+      logger.exception("Failed to get album art: No items found")
       return "https://pro2-bar-s3-cdn-cf4.myportfolio.com/42020405547ae2dc93d34e8df7965fc4/5d5b55e2-c1b4-46cb-a027-6a21bee9de3f_rw_1920.gif?h=85babbd0e5d4aa7c618295a359c1811f"
 
 
   except requests.exceptions.Timeout as e:
-    logger.error("TimeoutException: %s", e)
+    logger.exception("TimeoutException: %s", e)
     return "https://pro2-bar-s3-cdn-cf4.myportfolio.com/42020405547ae2dc93d34e8df7965fc4/5d5b55e2-c1b4-46cb-a027-6a21bee9de3f_rw_1920.gif?h=85babbd0e5d4aa7c618295a359c1811f"
   except requests.exceptions.RequestException as e:
-    logger.error("RequestException: %s", e)
+    logger.exception("RequestException: %s", e)
     return "https://pro2-bar-s3-cdn-cf4.myportfolio.com/42020405547ae2dc93d34e8df7965fc4/5d5b55e2-c1b4-46cb-a027-6a21bee9de3f_rw_1920.gif?h=85babbd0e5d4aa7c618295a359c1811f"
 
 def start_rpc(client_id, now_playing_queue):
@@ -105,8 +105,8 @@ def start_rpc(client_id, now_playing_queue):
         logger.debug("Connected to Discord RPC")
         break
       except Exception as e:
-        logger.error("Failed to connect to Discord RPC: %s", e)
-        traceback.print_exc()
+        logger.exception("Failed to connect to Discord RPC: %s", e)
+        # traceback.print_exc()
         time.sleep(15)
 
   # Call connect_rpc directly
@@ -162,13 +162,15 @@ def start_rpc(client_id, now_playing_queue):
     except (pypresence.exceptions.DiscordNotFound, pypresence.exceptions.InvalidPipe, pypresence.PipeClosed):
       connect_rpc()
     except (BrokenPipeError) as f:
-      logger.error("BrokenPipeError: %s", f)
-      traceback.print_exc()
+      logger.exception("BrokenPipeError: %s", f)
+      # traceback.print_exc()
+      # write traceback to logger
+      # traceback.print_exc()
     except (EOFError, UnboundLocalError) as g:
-      logger.error("EOFError: %s", g)
+      logger.exception("EOFError: %s", g)
       traceback.print_exc() 
     except Exception as e:
-      logger.error("Unexpected error in start_rpc: %s", e)
+      logger.exception("Unexpected error in start_rpc: %s", e)
       traceback.print_exc()
 
     time.sleep(.1)
@@ -231,24 +233,24 @@ async def main():
         now_playing_queue.put(data)
       await asyncio.sleep(1)
   except KeyboardInterrupt:
-    logger.info("Interrupted by user, stopping processes...")
+    logger.exception("Interrupted by user, stopping processes...")
     rpc_process.terminate()  # Terminate the rpc_process
     asyncio.get_event_loop().stop()
   except OSError as e:
-    logger.error("OSError %s", e)
-    traceback.print_exc()
+    logger.exception("OSError %s", e)
+    # traceback.print_exc()
     now_playing_queue.put(None)
   except Exception as e:
     logger.error("Unexpected error in main: %s", e)
-    traceback.print_exc()
+    # traceback.print_exc()
 
 if __name__ == '__main__':
   try:
     asyncio.run(main())
   except KeyboardInterrupt:
-    logger.error("KeyboardInterrupt-ed by user, caught in if, exiting...")
+    logger.exception("KeyboardInterrupt-ed by user, caught in if, exiting...")
     sys.exit(0)
   except Exception as e:
-    logger.error("Unexpected error in __main__: %s", e)
-    traceback.print_exc()
+    logger.exception("Unexpected error in __main__: %s", e)
+    # traceback.print_exc()
     sys.exit(1)
