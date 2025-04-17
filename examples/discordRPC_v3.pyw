@@ -20,26 +20,25 @@ from pypresence import ActivityType
 import pypresence.exceptions
 from pypresence import Presence
 import asyncio
-from py_now_playing import PlaybackControls, PlaybackInfo, MediaInfo, MediaTimeline
-
 from dataclasses import dataclass
 
 sys.path.append('C:/Users/buckn/Documents/py-now-playing')
 sys.path.append('C:/Users/buckn/Documents/py-now-playing/py_now_playing')
+from py_now_playing import PlaybackControls, PlaybackInfo, MediaInfo, MediaTimeline
 
 # install dev build of pypresence = pip install https://github.com/qwertyquerty/pypresence/archive/f856ccaaeb2321f64f9692b75dc3ceda5c927f42.zip
 # Set up logging
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG,
-                   format='(%(filename)s:%(lineno)d) - %(asctime)s - %(message)s')
-# logging.basicConfig(
-#     filename='C:/Users/buckn/Documents/py-now-playing/examples/app.log', level=logging.DEBUG, format="(%(filename)s:%(lineno)d) - %(asctime)s - %(message)s")
+# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG,
+#                    format='(%(filename)s:%(lineno)d) - %(asctime)s - %(message)s')
+logging.basicConfig(
+    filename='C:/Users/buckn/Documents/py-now-playing/examples/app.log', level=logging.DEBUG, format="(%(filename)s:%(lineno)d) - %(asctime)s - %(message)s")
 # console debug logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
 # filter PIL Image
 logging.getLogger('PIL').setLevel(logging.INFO)
-# spotify_token = None
-# token_expiration = None
+spotify_token = None
+token_expiration = None
 
 
 def get_spotify_token():
