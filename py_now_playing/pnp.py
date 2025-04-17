@@ -1,3 +1,6 @@
+"""Py Now Playing - Playback Controls Module
+This module provides the PlaybackControls class, which allows interaction with media playback controls on Windows.
+It includes methods to control playback, retrieve media information, and register callbacks for media events."""
 import asyncio
 import io
 from winrt.windows.media.control import (
@@ -22,6 +25,14 @@ logger = logging.getLogger(__name__)
 
 
 class PlaybackControls:
+  """Playback Controls Class
+  This class provides methods to control media playback and retrieve media information.
+  It interacts with the Windows Media Control API to manage playback sessions.
+  
+  Attributes:
+      aumid (str): The AppUserModelId of the application.
+      media_manager (MediaManager, optional): The MediaManager instance for managing media sessions.
+      """
   def __init__(self, aumid: str, media_manager: MediaManager = None):
     """Initializes the PlaybackControls.
 
@@ -34,7 +45,7 @@ class PlaybackControls:
     """
     self.aumid = aumid
 
-    if (aumid is None):
+    if aumid is None:
       raise ValueError("aumid cannot be None")
     if media_manager is not None:
       self._manager = media_manager
@@ -104,15 +115,14 @@ class PlaybackControls:
       if session is not None:
         info = await session.try_get_media_properties_async()
         if info is not None:
-          info_dict = {song_attr: info.__getattribute__(
-              song_attr) for song_attr in dir(info) if not song_attr.startswith('_')}
+          info_dict = {song_attr: getattr(info, song_attr) for song_attr in dir(info) if not song_attr.startswith('_')}
           info_dict['genres'] = list(info_dict['genres'])
           return info_dict
       return None
 
     if self.aumid is not None:
       info = await get_now_playing_info()
-      if (info is None):
+      if info is None:
         return None
       songInfoObject = MediaInfo()
       songInfoObject.artist = info['artist']
