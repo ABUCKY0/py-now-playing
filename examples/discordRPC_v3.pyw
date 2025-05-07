@@ -163,9 +163,9 @@ def start_rpc(client_id, now_playing_queue):
       connect_rpc()
     except (BrokenPipeError) as f:
       logger.exception("BrokenPipeError: %s", f)
-      # traceback.print_exc()
+      traceback.print_exc()
       # write traceback to logger
-      # traceback.print_exc()
+      traceback.print_exc()
     except (EOFError, UnboundLocalError) as g:
       logger.exception("EOFError: %s", g)
       traceback.print_exc() 
@@ -238,11 +238,11 @@ async def main():
     asyncio.get_event_loop().stop()
   except OSError as e:
     logger.exception("OSError %s", e)
-    # traceback.print_exc()
+    traceback.print_exc()
     now_playing_queue.put(None)
   except Exception as e:
     logger.error("Unexpected error in main: %s", e)
-    # traceback.print_exc()
+    traceback.print_exc()
 
 if __name__ == '__main__':
   try:
