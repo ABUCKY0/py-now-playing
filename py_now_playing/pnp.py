@@ -103,38 +103,40 @@ class PlaybackControls:
         MediaInfo: The media info of the media.
     """
 
-    async def get_now_playing_info() -> MediaInfo:
-      """Gets the now playing info from the MediaManager.
+    # async def get_now_playing_info() -> MediaInfo:
+    #   """Gets the now playing info from the MediaManager.
 
-      Returns:
-          MediaInfo: The now playing info from the MediaManager.
-      """
-      sessions = self._manager.get_sessions()
-      session = next(filter(lambda s: s.source_app_user_model_id ==
-                     self.aumid, sessions), None)
-      if session is not None:
-        info = await session.try_get_media_properties_async()
-        if info is not None:
-          info_dict = {song_attr: getattr(info, song_attr) for song_attr in dir(info) if not song_attr.startswith('_')}
-          info_dict['genres'] = list(info_dict['genres'])
-          return info_dict
-      return None
+    #   Returns:
+    #       MediaInfo: The now playing info from the MediaManager.
+    #   """
+    sessions = self._manager.get_sessions()
+    session = next(filter(lambda s: s.source_app_user_model_id ==
+                    self.aumid, sessions), None)
+    info_dict = None
+    if session is not None:
+      info = await session.try_get_media_properties_async()
+      if info is not None:
+        info_dict = {song_attr: getattr(info, song_attr) for song_attr in dir(info) if not song_attr.startswith('_')}
+        info_dict['genres'] = list(info_dict['genres'])
+        # return info_dict
+    # return None
 
     if self.aumid is not None:
-      info = await get_now_playing_info()
+      # info = await get_now_playing_info()
+      info = info_dict
       if info is None:
         return None
-      songInfoObject = MediaInfo()
-      songInfoObject.artist = info['artist']
-      songInfoObject.title = info['title']
-      songInfoObject.album_title = info['album_title']
-      songInfoObject.album_artist = info['album_artist']
-      songInfoObject.album_track_count = info['album_track_count']
-      songInfoObject.track_number = info['track_number']
-      songInfoObject.genres = info['genres']
-      songInfoObject.playback_type = info['playback_type']
-      songInfoObject.thumbnail = await self.thumbnail_to_image(info['thumbnail'])
-      return songInfoObject
+      song_info_object = MediaInfo()
+      song_info_object.artist = info['artist']
+      song_info_object.title = info['title']
+      song_info_object.album_title = info['album_title']
+      song_info_object.album_artist = info['album_artist']
+      song_info_object.album_track_count = info['album_track_count']
+      song_info_object.track_number = info['track_number']
+      song_info_object.genres = info['genres']
+      song_info_object.playback_type = info['playback_type']
+      song_info_object.thumbnail = await self.thumbnail_to_image(info['thumbnail'])
+      return song_info_object
 
   async def get_playback_info(self) -> PlaybackInfo | None:
     """Gets the playback info of the media.
@@ -147,6 +149,8 @@ class PlaybackControls:
         filter(lambda s: s.source_app_user_model_id == self.aumid, sessions), None)
     if session is not None:
       playback_info = session.get_playback_info()
+      if playback_info is None:
+        return None
       pi = PlaybackInfo()
       pi.playback_type = playback_info.playback_type
       pi.playback_status = playback_info.playback_status
@@ -285,7 +289,7 @@ class PlaybackControls:
         Image: The PIL Image.
     """
 
-    if (thumbnail is None):
+    if thumbnail is None:
       return None
     stream = await thumbnail.open_read_async()
     size = stream.size
@@ -395,7 +399,7 @@ class PlaybackControls:
     self._user_playback_info_callback(sender, reformatted_data)
     return
 
-  def _internal_timeline_properties_changed_callback(self, sender: GlobalSystemMediaTransportControlsSession, args: TimelinePropertiesChangedEventArgs):
+  def _internal_timeline_properties_changed_callback(self, sender: GlobalSystemMediaTransportControlsSession, args: TimelinePropertiesChangedEventArgs) -> None:
     """Internal callback for timeline properties changes.
 
     Args:
@@ -412,7 +416,7 @@ class PlaybackControls:
     if self._user_timeline_properties_callback:
       self._user_timeline_properties_callback(sender, reformatted_data)
 
-  def _internal_media_properties_changed_callback(self, sender: GlobalSystemMediaTransportControlsSession, args: MediaPropertiesChangedEventArgs):
+  def _internal_media_properties_changed_callback(self, sender: GlobalSystemMediaTransportControlsSession, args: MediaPropertiesChangedEventArgs) -> None:
     """Internal callback for media properties changes.
 
     Args:
