@@ -386,13 +386,13 @@ class PlaybackControls:
         sender (GlobalSystemMediaTransportControlsSession): The media session.
         args (PlaybackInfoChangedEventArgs): The event arguments.
     """
-    reformattedData = PlaybackInfo()
-    reformattedData.playback_type = sender.get_playback_info().playback_type
-    reformattedData.playback_status = sender.get_playback_info().playback_status
-    reformattedData.playback_rate = sender.get_playback_info().playback_rate
-    reformattedData.auto_repeat_mode = sender.get_playback_info().auto_repeat_mode
-    reformattedData.is_shuffle_active = sender.get_playback_info().is_shuffle_active
-    self._user_playback_info_callback(sender, reformattedData)
+    reformatted_data = PlaybackInfo()
+    reformatted_data.playback_type = sender.get_playback_info().playback_type
+    reformatted_data.playback_status = sender.get_playback_info().playback_status
+    reformatted_data.playback_rate = sender.get_playback_info().playback_rate
+    reformatted_data.auto_repeat_mode = sender.get_playback_info().auto_repeat_mode
+    reformatted_data.is_shuffle_active = sender.get_playback_info().is_shuffle_active
+    self._user_playback_info_callback(sender, reformatted_data)
     return
 
   def _internal_timeline_properties_changed_callback(self, sender: GlobalSystemMediaTransportControlsSession, args: TimelinePropertiesChangedEventArgs):
@@ -402,15 +402,15 @@ class PlaybackControls:
         sender (GlobalSystemMediaTransportControlsSession): The media session.
         args (TimelinePropertiesChangedEventArgs): The event arguments.
     """
-    reformattedData = MediaTimeline()
-    reformattedData.start_time = sender.get_timeline_properties().start_time
-    reformattedData.end_time = sender.get_timeline_properties().end_time
-    reformattedData.max_seek_time = sender.get_timeline_properties().max_seek_time
-    reformattedData.position = sender.get_timeline_properties().position
-    reformattedData.min_seek_time = sender.get_timeline_properties().min_seek_time
-    reformattedData.last_updated_time = sender.get_timeline_properties().last_updated_time
+    reformatted_data = MediaTimeline()
+    reformatted_data.start_time = sender.get_timeline_properties().start_time
+    reformatted_data.end_time = sender.get_timeline_properties().end_time
+    reformatted_data.max_seek_time = sender.get_timeline_properties().max_seek_time
+    reformatted_data.position = sender.get_timeline_properties().position
+    reformatted_data.min_seek_time = sender.get_timeline_properties().min_seek_time
+    reformatted_data.last_updated_time = sender.get_timeline_properties().last_updated_time
     if self._user_timeline_properties_callback:
-      self._user_timeline_properties_callback(sender, reformattedData)
+      self._user_timeline_properties_callback(sender, reformatted_data)
 
   def _internal_media_properties_changed_callback(self, sender: GlobalSystemMediaTransportControlsSession, args: MediaPropertiesChangedEventArgs):
     """Internal callback for media properties changes.
