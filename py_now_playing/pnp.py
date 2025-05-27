@@ -8,11 +8,9 @@ from winrt.windows.media.control import (
     PlaybackInfoChangedEventArgs,
     TimelinePropertiesChangedEventArgs,
     MediaPropertiesChangedEventArgs,
-
-
 )
+from typing import Callable
 from winrt.windows.media.control import GlobalSystemMediaTransportControlsSession
-
 from winrt.windows.storage.streams import DataReader
 import logging
 from subprocess import check_output, CREATE_NO_WINDOW
@@ -33,7 +31,7 @@ class PlaybackControls:
       aumid (str): The AppUserModelId of the application.
       media_manager (MediaManager, optional): The MediaManager instance for managing media sessions.
       """
-  def __init__(self, aumid: str, media_manager: MediaManager = None):
+  def __init__(self, aumid: str, media_manager: MediaManager | None = None):
     """Initializes the PlaybackControls.
 
     Args:
@@ -62,7 +60,7 @@ class PlaybackControls:
     """Initalizes the MediaManager"""
     self._manager = await MediaManager.request_async()
 
-  async def get_timeline_properties(self) -> MediaTimeline:
+  async def get_timeline_properties(self) -> MediaTimeline | None:
     """Gets the timeline properties of the media.
 
     Returns:
@@ -81,8 +79,9 @@ class PlaybackControls:
       tp.min_seek_time = timeline_properties.min_seek_time
       tp.last_updated_time = timeline_properties.last_updated_time
       return tp
+    return None
 
-  async def get_thumbnail(self) -> Image:
+  async def get_thumbnail(self) -> Image.Image | None:
     """Gets the thumbnail of the media.
 
     Returns:
@@ -94,6 +93,7 @@ class PlaybackControls:
     if session is not None:
       thumbnail = (await session.try_get_media_properties_async()).thumbnail
       return await self.thumbnail_to_image(thumbnail)
+    return None
 
   async def get_media_info(self) -> MediaInfo | None:
     """Gets the media info of the media.
@@ -434,7 +434,7 @@ class PlaybackControls:
     if self._user_media_properties_callback:
       self._user_media_properties_callback(sender, reformatted_data)
 
-  def register_playback_info_changed_callback(self, callback) -> None:
+  def register_playback_info_changed_callback(self, callback: Callable[[GlobalSystemMediaTransportControlsSession, PlaybackInfo], None]) -> None:
     """Registers a callback for playback info changes.
 
     Args:
@@ -448,7 +448,7 @@ class PlaybackControls:
       session.add_playback_info_changed(
           self._internal_playback_info_changed_callback)
 
-  def register_timeline_properties_changed_callback(self, callback) -> None:
+  def register_timeline_properties_changed_callback(self, callback: Callable[[GlobalSystemMediaTransportControlsSession, MediaTimeline], None]) -> None:
     """Registers a callback for timeline properties changes.
 
     Args:
@@ -462,7 +462,7 @@ class PlaybackControls:
       session.add_timeline_properties_changed(
           self._internal_timeline_properties_changed_callback)
 
-  def register_media_properties_changed_callback(self, callback) -> None:
+  def register_media_properties_changed_callback(self, callback: Callable[[GlobalSystemMediaTransportControlsSession, MediaInfo], None]) -> None:
     """Registers a callback for media properties changes.
 
     Args:

@@ -18,12 +18,12 @@ class MediaInfo:
     playback_type: Type of playback (e.g., music, video)
     thumbnail: Thumbnail image of the media
   """
-  artist: str = None
-  title: str = None
-  album_title: str = None
-  album_artist: str = None
-  album_track_count: int = None
-  track_number: int = None
-  genres: list = None
-  playback_type: str = None
-  thumbnail: Image = None
+  artist: str | None = None
+  title: str | None = None
+  album_title: str | None = None
+  album_artist: str | None = None
+  album_track_count: int | None = None
+  track_number: int | None = None
+  genres: list | None = None
+  playback_type: str | None = None
+  thumbnail: Image.Image | None = None

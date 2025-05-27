@@ -8,10 +8,10 @@ from datetime import timedelta, datetime
 class MediaTimeline:
   """Timeline properties of the media
   This class holds details about the media timeline such as start time, end time,"""
-  
-  start_time: timedelta = None
-  end_time: timedelta = None
-  max_seek_time: timedelta = None
-  position: timedelta = None
-  min_seek_time: timedelta = None
-  last_updated_time: datetime = None
+
+  start_time: timedelta | None = None
+  end_time: timedelta | None = None
+  max_seek_time: timedelta | None = None
+  position: timedelta | None = None
+  min_seek_time: timedelta | None = None
+  last_updated_time: datetime | None = None
