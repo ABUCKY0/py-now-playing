@@ -62,7 +62,6 @@ class PlaybackControls:
     """Initalizes the MediaManager"""
     self._manager = await MediaManager.request_async()
 
-  # Getters
   async def get_timeline_properties(self) -> MediaTimeline:
     """Gets the timeline properties of the media.
 
@@ -102,13 +101,6 @@ class PlaybackControls:
     Returns:
         MediaInfo: The media info of the media.
     """
-
-    # async def get_now_playing_info() -> MediaInfo:
-    #   """Gets the now playing info from the MediaManager.
-
-    #   Returns:
-    #       MediaInfo: The now playing info from the MediaManager.
-    #   """
     sessions = self._manager.get_sessions()
     session = next(filter(lambda s: s.source_app_user_model_id ==
                     self.aumid, sessions), None)
@@ -118,11 +110,8 @@ class PlaybackControls:
       if info is not None:
         info_dict = {song_attr: getattr(info, song_attr) for song_attr in dir(info) if not song_attr.startswith('_')}
         info_dict['genres'] = list(info_dict['genres'])
-        # return info_dict
-    # return None
 
     if self.aumid is not None:
-      # info = await get_now_playing_info()
       info = info_dict
       if info is None:
         return None
@@ -159,8 +148,6 @@ class PlaybackControls:
       pi.is_shuffle_active = playback_info.is_shuffle_active
       return pi
     return None
-
-  # Control Playback
 
   async def pause(self) -> bool:
     """Pause the media
