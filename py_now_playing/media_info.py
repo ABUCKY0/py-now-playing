@@ -18,25 +18,12 @@ class MediaInfo:
     playback_type: Type of playback (e.g., music, video)
     thumbnail: Thumbnail image of the media
   """
-  artist: str
-  title: str
-  album_title: str
-  album_artist: str
-  album_track_count: int
-  track_number: int
-  genres: list
-  playback_type: str
-  thumbnail: Image
-  
-  def __init__(self):
-    """Initialize MediaInfo with default values."""
-    self.artist = None
-    self.title = None
-    self.album_title = None
-    self.album_artist = None
-    self.album_track_count = None
-    self.track_number = None
-    self.genres = None
-    self.playback_type = None
-    self.thumbnail = None
-    
+  artist: str = None
+  title: str = None
+  album_title: str = None
+  album_artist: str = None
+  album_track_count: int = None
+  track_number: int = None
+  genres: list = None
+  playback_type: str = None
+  thumbnail: Image = None

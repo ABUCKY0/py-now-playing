@@ -96,7 +96,7 @@ class PlaybackControls:
       thumbnail = (await session.try_get_media_properties_async()).thumbnail
       return await self.thumbnail_to_image(thumbnail)
 
-  async def get_media_info(self) -> MediaInfo:
+  async def get_media_info(self) -> MediaInfo | None:
     """Gets the media info of the media.
 
     Returns:
@@ -136,7 +136,7 @@ class PlaybackControls:
       songInfoObject.thumbnail = await self.thumbnail_to_image(info['thumbnail'])
       return songInfoObject
 
-  async def get_playback_info(self) -> PlaybackInfo:
+  async def get_playback_info(self) -> PlaybackInfo | None:
     """Gets the playback info of the media.
 
     Returns:
@@ -169,6 +169,7 @@ class PlaybackControls:
         filter(lambda s: s.source_app_user_model_id == self.aumid, sessions), None)
     if session is not None:
       return await session.try_pause_async()
+    return False
 
   async def play(self) -> bool:
     """Play the media
@@ -181,6 +182,7 @@ class PlaybackControls:
         filter(lambda s: s.source_app_user_model_id == self.aumid, sessions), None)
     if session is not None:
       return await session.try_play_async()
+    return False
 
   async def toggle_play_pause(self) -> bool:
     """Toggle play/pause the media
@@ -193,6 +195,7 @@ class PlaybackControls:
         filter(lambda s: s.source_app_user_model_id == self.aumid, sessions), None)
     if session is not None:
       return await session.try_toggle_play_pause_async()
+    return False
 
   async def stop(self) -> bool:
     """Stop the media
@@ -205,6 +208,7 @@ class PlaybackControls:
         filter(lambda s: s.source_app_user_model_id == self.aumid, sessions), None)
     if session is not None:
       return await session.try_stop_async()
+    return False
 
   async def record(self) -> bool:
     """Tell the application to record
@@ -217,6 +221,7 @@ class PlaybackControls:
         filter(lambda s: s.source_app_user_model_id == self.aumid, sessions), None)
     if session is not None:
       return await session.try_record_async()
+    return False
 
   async def rewind(self) -> bool:
     """Rewind the media
@@ -229,6 +234,7 @@ class PlaybackControls:
         filter(lambda s: s.source_app_user_model_id == self.aumid, sessions), None)
     if session is not None:
       return await session.try_rewind_async()
+    return False
 
   async def fast_forward(self) -> bool:
     """Fast forward the media
@@ -241,6 +247,7 @@ class PlaybackControls:
         filter(lambda s: s.source_app_user_model_id == self.aumid, sessions), None)
     if session is not None:
       return await session.try_fast_forward_async()
+    return False
 
   async def next_track(self) -> bool:
     """Skip to the next track
@@ -253,6 +260,7 @@ class PlaybackControls:
         filter(lambda s: s.source_app_user_model_id == self.aumid, sessions), None)
     if session is not None:
       return await session.try_skip_next_async()
+    return False
 
   async def previous_track(self) -> bool:
     """Skip to the previous track
@@ -265,8 +273,9 @@ class PlaybackControls:
         filter(lambda s: s.source_app_user_model_id == self.aumid, sessions), None)
     if session is not None:
       return await session.try_skip_previous_async()
+    return False
 
-  async def thumbnail_to_image(self, thumbnail):
+  async def thumbnail_to_image(self, thumbnail) -> Image.Image | None:
     """Converts a thumbnail to a PIL Image.
 
     Args:
@@ -304,7 +313,7 @@ class PlaybackControls:
     return [app for app in amuids if app['AppID'] in active_amuids]
 
   @staticmethod
-  async def get_aumid_by_name(name: str) -> str:
+  async def get_aumid_by_name(name: str) -> str | None:
     """Gets the AUMID by the name of the app.
 
     Args:
@@ -322,7 +331,7 @@ class PlaybackControls:
     return None
 
   @staticmethod
-  async def search_aumid_by_name(name: str) -> str:
+  async def search_aumid_by_name(name: str) -> str | None:
     """Searches for the AUMID by the name of the app.
 
     Args:
@@ -353,6 +362,7 @@ class PlaybackControls:
         filter(lambda s: s.source_app_user_model_id == self.aumid, sessions), None)
     if session is not None:
       return await session.try_change_playback_rate_async(rate)
+    return False
 
   async def change_shuffle_active(self, state: bool) -> bool:
     """Changes the shuffle active state.
@@ -367,8 +377,9 @@ class PlaybackControls:
         filter(lambda s: s.source_app_user_model_id == self.aumid, sessions), None)
     if session is not None:
       return await session.try_change_shuffle_active_async(state)
+    return False
 
-  def _internal_playback_info_changed_callback(self, sender: GlobalSystemMediaTransportControlsSession, args: PlaybackInfoChangedEventArgs):
+  def _internal_playback_info_changed_callback(self, sender: GlobalSystemMediaTransportControlsSession, args: PlaybackInfoChangedEventArgs) -> None:
     """Internal callback for playback info changes.
 
     Args:
@@ -410,7 +421,7 @@ class PlaybackControls:
     """
     reformatted_data = MediaInfo()
 
-    async def get_media_properties():
+    async def get_media_properties() -> MediaInfo:
       return await sender.try_get_media_properties_async()
 
     info = asyncio.run(get_media_properties())
@@ -432,7 +443,7 @@ class PlaybackControls:
     if self._user_media_properties_callback:
       self._user_media_properties_callback(sender, reformatted_data)
 
-  def register_playback_info_changed_callback(self, callback):
+  def register_playback_info_changed_callback(self, callback) -> None:
     """Registers a callback for playback info changes.
 
     Args:
@@ -446,7 +457,7 @@ class PlaybackControls:
       session.add_playback_info_changed(
           self._internal_playback_info_changed_callback)
 
-  def register_timeline_properties_changed_callback(self, callback):
+  def register_timeline_properties_changed_callback(self, callback) -> None:
     """Registers a callback for timeline properties changes.
 
     Args:
@@ -460,7 +471,7 @@ class PlaybackControls:
       session.add_timeline_properties_changed(
           self._internal_timeline_properties_changed_callback)
 
-  def register_media_properties_changed_callback(self, callback):
+  def register_media_properties_changed_callback(self, callback) -> None:
     """Registers a callback for media properties changes.
 
     Args:

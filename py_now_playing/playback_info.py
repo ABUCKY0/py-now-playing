@@ -38,16 +38,8 @@ class PlaybackInfo:
     auto_repeat_mode: Auto-repeat mode for the media playback
     is_shuffle_active: Whether shuffle mode is active
   """
-  playback_type: MediaPlaybackType
-  playback_status: MediaPlaybackStatus
-  playback_rate: float
-  auto_repeat_mode: MediaPlaybackAutoRepeatMode
-  is_shuffle_active: bool
-  
-  def __init__(self) -> None:
-    self.playback_type = None
-    self.playback_status = None
-    self.playback_rate = None
-    self.auto_repeat_mode = None
-    self.is_shuffle_active = None
-  
+  playback_type: MediaPlaybackType | None = None
+  playback_status: MediaPlaybackStatus | None = None
+  playback_rate: float | None = None
+  auto_repeat_mode: MediaPlaybackAutoRepeatMode | None = None
+  is_shuffle_active: bool | None = None
