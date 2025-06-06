@@ -293,7 +293,7 @@ class PlaybackControls:
     """Gets AppUserModelIds of apps which are actively playing media.
 
     Returns:
-        list: The active AppUserModelIds.
+        list: The active AppUserModelIds in the format [{Name, AppID}, ...]
     """
     amuids = check_output(["powershell.exe", "Get-StartApps | ConvertTo-Json"],
                           shell=False, creationflags=CREATE_NO_WINDOW)
@@ -306,6 +306,8 @@ class PlaybackControls:
   @staticmethod
   async def get_aumid_by_name(name: str) -> str | None:
     """Gets the AUMID by the name of the app.
+    Note that this gets the first match of the app name.
+    If there are multiple apps with the same name, it will return the first one installed on your system, not the one currently running.
 
     Args:
         name (str): The name of the app.

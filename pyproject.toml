@@ -17,7 +17,7 @@ winrt-windows-foundation-collections = "^2.3.0"
 
 [tool.poetry.group.dev.dependencies]
 asynctest = "^0.13.0"
-pypresence = {url = "https://github.com/qwertyquerty/pypresence/archive/f856ccaaeb2321f64f9692b75dc3ceda5c927f42.zip"}
+pypresence = {url = "https://github.com/ghostselfbot/pypresence/archive/refs/heads/master.zip"} # https://github.com/qwertyquerty/pypresence/archive/f856ccaaeb2321f64f9692b75dc3ceda5c927f42.zip
 requests = "^2.32.3"
 flet = "^0.25.2"
 

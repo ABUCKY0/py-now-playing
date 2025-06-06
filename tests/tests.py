@@ -50,38 +50,38 @@ async def main_test():
   # time.sleep(1)
   # await pbc.next_track()
   #logger.info(await pbc.get_timeline_properties())
-  await pbc.change_playback_rate(1.0)
+  # await pbc.change_playback_rate(1.0)
   
   # # open thumbnail in photo viewer
   # thumbnail = await pbc.get_thumbnail()
   # thumbnail.show()
   
-  await pbc.change_shuffle_active(True)
+  # await pbc.change_shuffle_active(True)
   
-  def timeline_properties_changed(sender, args: MediaTimeline):
-    logger.info("Timeline properties changed")
-    logger.info(args)
+  # def timeline_properties_changed(sender, args: MediaTimeline):
+  #   logger.info("Timeline properties changed")
+  #   logger.info(args)
   
-  pbc.register_timeline_properties_changed_callback(timeline_properties_changed)
+  # pbc.register_timeline_properties_changed_callback(timeline_properties_changed)
   
   
-  def playback_info_changed(sender, args: PlaybackInfo):
-    logger.info("Playback info changed")
-    logger.info(args)
+  # def playback_info_changed(sender, args: PlaybackInfo):
+  #   logger.info("Playback info changed")
+  #   logger.info(args)
   
-  pbc.register_playback_info_changed_callback(playback_info_changed)
+  # pbc.register_playback_info_changed_callback(playback_info_changed)
   
-  def media_properties_changed(sender, args: MediaInfo):
-    logger.info("Media properties changed")
-    logger.info(args)
+  # def media_properties_changed(sender, args: MediaInfo):
+  #   logger.info("Media properties changed")
+  #   logger.info(args)
     
-  pbc.register_media_properties_changed_callback(media_properties_changed)
-  time.sleep(5)
+  # pbc.register_media_properties_changed_callback(media_properties_changed)
+  # time.sleep(5)
   # stop
-  await pbc.stop()
-  
-  while(True):
-    time.sleep(1)
+  # await pbc.stop()
+  print(await pbc.get_active_app_user_model_ids())
+  # while(True):
+  #   time.sleep(1)
   
   
 asyncio.run(main_test())

@@ -117,7 +117,7 @@ async def main():
             if state_changed:
                 logger.info("Media state changed. Updating Discord RPC.")
 
-                title = re.sub(r"\[.*?feat\..*?\]", "", media_info.title).removesuffix(" [Explicit]").strip()
+                title = re.sub(r"\[.*?feat\..*?\]", "", media_info.title).removesuffix(" [Explicit]").removesuffix(" [Clean]").strip()
                 artists = re.findall(r'\[.*?feat\.(.*?)\]', media_info.title)
                 artist_names = [media_info.artist] + [a.strip() for feat in artists for a in feat.split('&')]
                 artist = ', '.join([re.sub(r'\[.*?\]', '', a).strip() for a in artist_names])
@@ -137,7 +137,8 @@ async def main():
                     large_text="Listening on Amazon Music",
                     activity_type=ActivityType.LISTENING,
                     start=start_time,
-                    end=end_time
+                    end=end_time,
+                    name=f"{artist}",
                 )
 
                 prev_state.update({
