@@ -8,8 +8,8 @@ copyright = "2025, ABUCKY0"
 html_theme = 'furo'
 extensions = [
     'myst_parser',
-    'sphinx.ext.autodoc'
+    'sphinx.ext.autodoc',
+    'autoapi.extension'
 ]
 
-
-sys.path.insert(0, str(Path('..').resolve()))
+autoapi_dirs = ['../py_now_playing']
