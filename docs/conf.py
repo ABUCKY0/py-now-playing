@@ -12,4 +12,4 @@ extensions = [
 ]
 
 
-sys.path.insert(0, str(Path('..', 'py_now_playing').resolve()))
+sys.path.insert(0, str(Path('py_now_playing').resolve()))
