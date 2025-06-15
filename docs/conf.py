@@ -3,3 +3,7 @@ project = 'Py Now Playing'
 author = 'ABUCKY0'
 release = '0.2.0'
 copyright = "2025, ABUCKY0"
+
+extensions = [
+    'myst_parser',
+]
