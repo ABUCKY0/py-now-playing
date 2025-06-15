@@ -6,7 +6,7 @@ authors = ["ABUCKY0 <81783950+ABUCKY0@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.14"
+python = ">=3.11,<3.14"
 pillow = "^10.1.0"
 winrt-Windows-Media = "^2.3.0"
 winrt-windows-media-control = "^2.3.0"
@@ -20,6 +20,7 @@ asynctest = "^0.13.0"
 pypresence = {url = "https://github.com/ghostselfbot/pypresence/archive/refs/heads/master.zip"} # https://github.com/qwertyquerty/pypresence/archive/f856ccaaeb2321f64f9692b75dc3ceda5c927f42.zip
 requests = "^2.32.3"
 flet = "^0.25.2"
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
