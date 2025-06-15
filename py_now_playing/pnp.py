@@ -1,5 +1,5 @@
 """Py Now Playing - Playback Controls Module
-This module provides the PlaybackControls class, which allows interaction with media playback controls on Windows.
+This module provides the PyNowPlaying class, which allows interaction with media playback controls on Windows.
 It includes methods to control playback, retrieve media information, and register callbacks for media events."""
 import asyncio
 import io
@@ -18,11 +18,13 @@ from json import loads
 from .media_info import MediaInfo
 from .media_timeline import MediaTimeline
 from .playback_info import PlaybackInfo
+from .playback_info import MediaPlaybackStatus
 from PIL import Image
+from datetime import datetime, timedelta, timezone
 logger = logging.getLogger(__name__)
 
 
-class PlaybackControls:
+class PyNowPlaying:
   """Playback Controls Class
   This class provides methods to control media playback and retrieve media information.
   It interacts with the Windows Media Control API to manage playback sessions.
@@ -32,7 +34,7 @@ class PlaybackControls:
       media_manager (MediaManager, optional): The MediaManager instance for managing media sessions.
       """
   def __init__(self, aumid: str, media_manager: MediaManager | None = None):
-    """Initializes the PlaybackControls.
+    """Initializes the PyNowPlaying class.
 
     Args:
         aumid (str): The AppUserModelId of the application.
@@ -51,10 +53,10 @@ class PlaybackControls:
       logger.debug(
           "Please run initalize_mediamanager for py_now_playing to properly function"
       )
-      
-    self._user_timeline_properties_callback = None
-    self._user_playback_info_callback = None
-    self._user_media_properties_callback = None
+
+    self._user_timeline_properties_callback: Callable[[TimelinePropertiesChangedEventArgs], None] | None = None
+    self._user_playback_info_callback: Callable[[PlaybackInfoChangedEventArgs], None] | None = None
+    self._user_media_properties_callback: Callable[[MediaPropertiesChangedEventArgs], None] | None = None
 
   async def initalize_mediamanager(self) -> None:
     """Initalizes the MediaManager"""
@@ -62,6 +64,9 @@ class PlaybackControls:
 
   async def get_timeline_properties(self) -> MediaTimeline | None:
     """Gets the timeline properties of the media.
+
+    Note:
+        Windows updates the Media Timeline information at it's own pace, so if you want a live position marker, use get_interpolated_timeline_properties()
 
     Returns:
         MediaTimeline: The timeline properties of the media.
@@ -80,6 +85,27 @@ class PlaybackControls:
       tp.last_updated_time = timeline_properties.last_updated_time
       return tp
     return None
+
+  async def get_interpolated_timeline_properties(self) -> MediaTimeline | None:
+    """Gets the interpolated timeline properties of the media.
+
+    Note:
+        MediaTimeline.last_updated_time is the last update by WinRT, not since the update of this function.
+    Returns:
+        MediaTimeline: The interpolated timeline properties of the media.
+    """
+    media_timeline: MediaTimeline | None = await self.get_timeline_properties()
+    playback_status: PlaybackInfo | None = await self.get_playback_info()
+    if media_timeline is not None and playback_status is not None:
+      # 
+      if playback_status.playback_status is not None and playback_status.playback_status == MediaPlaybackStatus.PAUSED:
+        return media_timeline
+      last_updated_time = media_timeline.last_updated_time
+      now = datetime.now(timezone.utc)
+      true_time_since_last_update = (now - last_updated_time) + media_timeline.position
+      # add to position
+      media_timeline.position = true_time_since_last_update
+    return media_timeline
 
   async def get_thumbnail(self) -> Image.Image | None:
     """Gets the thumbnail of the media.
@@ -289,7 +315,7 @@ class PlaybackControls:
     return image
 
   @staticmethod
-  async def get_active_app_user_model_ids() -> list:
+  async def get_active_app_user_model_ids() -> list[dict[str, str]]:
     """Gets AppUserModelIds of apps which are actively playing media.
 
     Returns:
@@ -304,7 +330,7 @@ class PlaybackControls:
     return [app for app in amuids if app['AppID'] in active_amuids]
 
   @staticmethod
-  async def get_aumid_by_name(name: str) -> str | None:
+  async def get_all_aumids_by_name(name: str) -> list[str] | None:
     """Gets the AUMID by the name of the app.
     Note that this gets the first match of the app name.
     If there are multiple apps with the same name, it will return the first one installed on your system, not the one currently running.
@@ -313,25 +339,8 @@ class PlaybackControls:
         name (str): The name of the app.
 
     Returns:
-        str: The AUMID of the app.
-    """
-    amuids = check_output(["powershell.exe", "Get-StartApps | ConvertTo-Json"],
-                          shell=False, creationflags=CREATE_NO_WINDOW)
-    amuids = loads(amuids)
-    for app in amuids:
-      if app['Name'] == name:
-        return app['AppID']
-    return None
-
-  @staticmethod
-  async def search_aumid_by_name(name: str) -> str | None:
-    """Searches for the AUMID by the name of the app.
-
-    Args:
-        name (str): The name of the app to search for.
-
-    Returns:
-        str: The AUMID of the app.
+        list[str]: A list of AppUserModelIds that match the name.
+        None: If no matches are found.
     """
     amuids = check_output(["powershell.exe", "Get-StartApps | ConvertTo-Json"],
                           shell=False, creationflags=CREATE_NO_WINDOW)
@@ -339,8 +348,10 @@ class PlaybackControls:
     matches = []
     for app in amuids:
       if name.lower() in app['Name'].lower():
-        matches.append(app)
-    return None
+        matches.append(app['AppID'])
+    if len(matches) == 0:
+      return None
+    return matches
 
   async def change_playback_rate(self, rate: float) -> bool:
     """Changes the playback rate for supported apps/media.

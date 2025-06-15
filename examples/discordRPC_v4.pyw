@@ -15,7 +15,7 @@ sys.path.extend([
 ])
 
 from py_now_playing import (
-    PlaybackControls, MediaPlaybackStatus
+    PyNowPlaying, MediaPlaybackStatus
 )
 
 # --- Logging Setup ---
@@ -81,7 +81,7 @@ def get_album_art(artist, title):
 async def main():
     """Main function to initialize the playback controls and Discord RPC."""
     # np = PlaybackControls(aumid="ChromeDev._crx_hjlgoickghknhfichlenalencg")
-    np = PlaybackControls(aumid="music.amazon.com-6BE721EE_pwn81ww419gp8!App")
+    np = PyNowPlaying(aumid="music.amazon.com-6BE721EE_pwn81ww419gp8!App")
     await np.initalize_mediamanager()
 
     rpc = AioPresence("1187213553673965619")
@@ -105,6 +105,8 @@ async def main():
             if not (media_info and media_info.title and media_info.artist and media_playback):
                 await rpc.clear()
                 logger.debug("Cleared Discord RPC")
+                prev_state.clear()
+
                 await asyncio.sleep(1)
                 continue
 

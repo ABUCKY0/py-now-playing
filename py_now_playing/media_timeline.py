@@ -7,7 +7,8 @@ from datetime import timedelta, datetime
 @dataclass
 class MediaTimeline:
   """Timeline properties of the media
-  This class holds details about the media timeline such as start time, end time,"""
+  This class holds details about the media timeline such as start time, end time, maximum seek time, current position, minimum seek time, and the last updated time.
+  """
 
   start_time: timedelta | None = None
   end_time: timedelta | None = None

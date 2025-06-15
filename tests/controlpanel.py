@@ -5,7 +5,7 @@ import asyncio
 import io
 import base64
 import flet as ft
-from py_now_playing.pnp import PlaybackControls
+from py_now_playing.pnp import PyNowPlaying
 from py_now_playing.media_info import MediaInfo
 from py_now_playing.playback_info import PlaybackInfo, MediaPlaybackStatus
 from py_now_playing.media_timeline import MediaTimeline
@@ -16,7 +16,7 @@ async def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
-    pbc = PlaybackControls(aumid="ChromeDev._crx_hjlgoickghknhfichlenalencg")
+    pbc = PyNowPlaying(aumid="music.amazon.com-6BE721EE_pwn81ww419gp8!App")
     await pbc.initalize_mediamanager()
 
     async def play(e):
@@ -48,11 +48,11 @@ async def main(page: ft.Page):
         playback_status_pbc = await pbc.get_playback_info()
         timeline_pbc = await pbc.get_timeline_properties()
         status = None
-        if playback_status_pbc.playback_status == MediaPlaybackStatus.PLAYING:
+        if playback_status_pbc.playback_status is not None and playback_status_pbc.playback_status == MediaPlaybackStatus.PLAYING:
             status = 'Playing'
-        elif playback_status_pbc.playback_status == MediaPlaybackStatus.PAUSED:
+        elif playback_status_pbc.playback_status is not None and playback_status_pbc.playback_status == MediaPlaybackStatus.PAUSED:
             status = 'Paused'
-        elif playback_status_pbc.playback_status == MediaPlaybackStatus.STOPPED:
+        elif playback_status_pbc.playback_status is not None and playback_status_pbc.playback_status == MediaPlaybackStatus.STOPPED:
             status = 'Stopped'
         else:
             status = 'Unknown'
@@ -64,11 +64,13 @@ async def main(page: ft.Page):
         buffered = io.BytesIO()
         media_info.thumbnail.save(buffered, format="PNG")
         img_str = base64.b64encode(buffered.getvalue()).decode()
-        thumbnail.src = f"data:image/jpeg;base64,{img_str}"
+        # thumbnail.src = f"data:image/jpeg;base64,{img_str}"
+        # print(thumbnail.src)
+        thumbnail.src_base64 = f"{img_str}"
 
         # Update progress bar
         
-        progress_bar.value = timeline_pbc.position.total_seconds() / \
+        progress_bar.value = (await pbc.get_interpolated_timeline_properties()).position.total_seconds() / \
                 timeline_pbc.end_time.total_seconds()
 
         page.update()
@@ -99,7 +101,7 @@ async def main(page: ft.Page):
     title = ft.Text(value="Title: ", size=20)
     playback_status = ft.Text(value="Status: ", size=20)
     thumbnail = ft.Image(src="", width=100, height=100)
-    progress_bar = ft.ProgressBar(value=0, width=1500, height=50)
+    progress_bar = ft.ProgressBar(value=0, width=60000, height=50)
 
     page.add(
         ft.Column(
@@ -116,12 +118,12 @@ async def main(page: ft.Page):
                         horizontal_alignment=ft.CrossAxisAlignment.START,
                     ),
                     alignment=ft.alignment.top_left,
-                    padding=10,
+                    padding=30,
                 ),
                 ft.Container(
                     content=progress_bar,
                     alignment=ft.alignment.top_center,
-                    padding=10,
+                    padding=30,
                 ),
                 ft.Container(
                     content=ft.Row(
@@ -139,7 +141,7 @@ async def main(page: ft.Page):
                         wrap=True,
                     ),
                     alignment=ft.alignment.bottom_center,
-                    padding=10,
+                    padding=30,
                 ),
             ],
             alignment=ft.MainAxisAlignment.CENTER,
@@ -149,4 +151,4 @@ async def main(page: ft.Page):
 
     asyncio.create_task(periodic_update())
 
-ft.app(target=main, view=ft.WEB_BROWSER)
+ft.app(target=main)

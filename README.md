@@ -7,8 +7,34 @@ Note that this class utilizes asyncio, so you may need to use await when using t
 # Importing
 You can use the following import statement to import all parts of py_now_playing
 ```py
-from py_now_playing import MediaPlaybackStatus, MediaPlaybackType, MediaPlaybackAutoRepeatMode, PlaybackInfo, MediaTimeline, PlaybackControls, MediaInfo
+from py_now_playing import (
+    MediaPlaybackStatus,
+    MediaPlaybackType,
+    MediaPlaybackAutoRepeatMode,
+    PlaybackInfo,
+    MediaTimeline,
+    PyNowPlaying,
+    MediaInfo,
+)
 ```
+
+# Setup
+Initalizing a PyNowPlaying instance requires knowing the AppUserModelID of the app you want to get the media from. The PyNowPlaying class provides two static methods to help with this.
+
+```py
+async def get_active_app_user_model_ids() -> list:
+```
+Returns all apps currently playing media and their AppIDs as a list of dictionaries with the format {Name, AppID}
+
+```py
+async def get_all_aumids_by_name(name: str) -> list | None
+```
+Returns all apps on the system that contain the provided name case insensitive.
+
+> [!NOTE]
+> Alternatively, if you wish to access a specific app all the time (as is the case with my Discord RPC Example), you can use the code above to find the AppID and then hardcode it, or run `Get-StartApps | Select-String "App Name"` in a Powershell window.
+
+
 
 
 # Py Now Playing in Use
