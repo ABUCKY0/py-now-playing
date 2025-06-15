@@ -23,6 +23,6 @@ sphinx:
 python:
   install:
     - method: pip
-      path: docs/requirements.txt
+      path: -r docs/requirements.txt
     
         
