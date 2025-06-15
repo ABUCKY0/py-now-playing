@@ -4,8 +4,9 @@ Welcome to Py Now Playing's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-   index.rst
+   
    README.md
+   pnp.md
 
 Indices and tables
 ==================
