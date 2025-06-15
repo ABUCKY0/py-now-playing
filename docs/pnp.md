@@ -1,6 +1,6 @@
 # py_now_playing.pnp API Reference
 
-::: pnp
+::: py_now_playing.pnp
     :members:
     :undoc-members:
     :show-inheritance:
