@@ -40,3 +40,5 @@ Returns all apps on the system that contain the provided name case insensitive.
 # Py Now Playing in Use
 ![image](https://github.com/user-attachments/assets/53b3bb1e-6c31-4385-970b-ba66384eec0d)  
 Above: An Amazon Music Discord RPC Application using Py Now Playing and Pypresence. Note that the album covers aren't the ones pulled from Windows, and are instead pulled from the Spotify API.
+
+

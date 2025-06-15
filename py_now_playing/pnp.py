@@ -389,6 +389,8 @@ class PyNowPlaying:
     Args:
         sender (GlobalSystemMediaTransportControlsSession): The media session.
         args (PlaybackInfoChangedEventArgs): The event arguments.
+    
+    :meta private:
     """
     reformatted_data = PlaybackInfo()
     reformatted_data.playback_type = sender.get_playback_info().playback_type
@@ -405,6 +407,8 @@ class PyNowPlaying:
     Args:
         sender (GlobalSystemMediaTransportControlsSession): The media session.
         args (TimelinePropertiesChangedEventArgs): The event arguments.
+
+    :meta private:
     """
     reformatted_data = MediaTimeline()
     reformatted_data.start_time = sender.get_timeline_properties().start_time
@@ -422,6 +426,8 @@ class PyNowPlaying:
     Args:
         sender (GlobalSystemMediaTransportControlsSession): The media session.
         args (MediaPropertiesChangedEventArgs): The event arguments.
+
+    :meta private:
     """
     reformatted_data = MediaInfo()
 
