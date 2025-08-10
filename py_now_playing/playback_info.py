@@ -3,11 +3,13 @@ This module defines the PlaybackInfo class, which holds information about the cu
 It includes details such as playback type, status, rate, auto-repeat mode, and shuffle state."""
 from dataclasses import dataclass
 import enum
+from .enabled_controls import EnabledControls
 
 
 class MediaPlaybackStatus(enum.IntEnum):
   """Playback status of the media"""
   CLOSED = 0
+  OPENED = 1
   CHANGING = 2
   STOPPED = 3
   PLAYING = 4
@@ -43,3 +45,4 @@ class PlaybackInfo:
   playback_rate: float | None = None
   auto_repeat_mode: MediaPlaybackAutoRepeatMode | None = None
   is_shuffle_active: bool | None = None
+  controls: EnabledControls | None = None
