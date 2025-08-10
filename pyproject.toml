@@ -1,9 +1,12 @@
 [tool.poetry]
 name = "py-now-playing"
-version = "0.2.0-dev"
+version = "0.2.0-rc1"
 description = "A Python Library to get the currently playing media"
 authors = ["ABUCKY0 <81783950+ABUCKY0@users.noreply.github.com>"]
 readme = "README.md"
+homepage = "https://py-now-playing.readthedocs.io/en/rewrite-2/README.html"
+repository = "https://github.com/abucky0/py-now-playing"
+license = "GNU General Public License v3 (GPLv3)"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.14"

@@ -26,45 +26,60 @@ logger = logging.getLogger(__name__)
 
 
 class PyNowPlaying:
-  #### CLASS STUFF ####
-  """Playback Controls Class
+  """
+  Playback Controls Class
+
   This class provides methods to control media playback and retrieve media information.
   It interacts with the Windows Media Control API to manage playback sessions.
-  
+
   Attributes:
       aumid (str): The AppUserModelId of the application.
-      media_manager (MediaManager, optional): The MediaManager instance for managing media sessions.
-      """
-  def __init__(self, aumid: str, media_manager: MediaManager | None = None):
-    """Initializes the PyNowPlaying class.
+      _manager (MediaManager): The MediaManager instance for managing media sessions.
+  """
+
+  @classmethod
+  async def create(cls, aumid: str):
+    """
+    Async factory method to initialize PyNowPlaying with a MediaManager.
 
     Args:
-        aumid (str): The AppUserModelId of the application.
-        media_manager (MediaManager, optional): The MediaManager instance. Defaults to None.
+      aumid (str): The AppUserModelId of the application.
+
+    Returns:
+      PyNowPlaying: An initialized instance with MediaManager ready.
+    """
+    media_manager = await MediaManager.request_async()
+    return cls._init(aumid, media_manager)
+
+  @classmethod
+  def _init(cls, aumid: str, media_manager: MediaManager):
+    """
+    Initializes the PyNowPlaying class.
+
+    Args:
+      aumid (str): The AppUserModelId of the application.
+      media_manager (MediaManager): The MediaManager instance.
 
     Raises:
-        ValueError: If aumid is None.
+      ValueError: If aumid is None.
     """
-    self.aumid = aumid
-
     if aumid is None:
       raise ValueError("aumid cannot be None")
-    if media_manager is not None:
-      self._manager = media_manager
-    if media_manager is None:
-      logger.debug(
-          "Please run initalize_mediamanager for py_now_playing to properly function"
-      )
+    obj = object.__new__(cls)
+    obj.aumid = aumid
+    obj._manager = media_manager
 
-    self._user_timeline_properties_callback: Callable[[TimelinePropertiesChangedEventArgs], None] | None = None
-    self._user_playback_info_callback: Callable[[PlaybackInfoChangedEventArgs], None] | None = None
-    self._user_media_properties_callback: Callable[[MediaPropertiesChangedEventArgs], None] | None = None
-
-  async def initalize_mediamanager(self) -> None:
-    """Initalizes the MediaManager"""
-    self._manager = await MediaManager.request_async()
-
-
+    obj._user_timeline_properties_callback: Callable[[
+      TimelinePropertiesChangedEventArgs], None] | None = None
+    obj._user_playback_info_callback: Callable[[
+      PlaybackInfoChangedEventArgs], None] | None = None
+    obj._user_media_properties_callback: Callable[[
+      MediaPropertiesChangedEventArgs], None] | None = None
+    
+    return obj
+  def __init__(self, *args, **kwargs):
+    raise RuntimeError(
+      "Use PyNowPlaying.create() to instantiate this class.")
   #### TIMELINE/MEDIA/PLAYBACK CONTROLS ####
   async def pause(self) -> bool:
     """Pause the media

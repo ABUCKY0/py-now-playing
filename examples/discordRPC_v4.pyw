@@ -90,9 +90,7 @@ def get_album_art(artist, title):
 
 async def main():
     """Main function to initialize the playback controls and Discord RPC."""
-    # np = PlaybackControls(aumid="ChromeDev._crx_hjlgoickghknhfichlenalencg")
-    np = PyNowPlaying(aumid="music.amazon.com-6BE721EE_pwn81ww419gp8!App")
-    await np.initalize_mediamanager()
+    np = await PyNowPlaying.create(aumid="music.amazon.com-6BE721EE_pwn81ww419gp8!App")
 
     rpc = AioPresence("1187213553673965619")
     while True:

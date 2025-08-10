@@ -17,8 +17,7 @@ async def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
-    pbc = PyNowPlaying(aumid="music.amazon.com-6BE721EE_pwn81ww419gp8!App")
-    await pbc.initalize_mediamanager()
+    pbc = await PyNowPlaying.create(aumid="music.amazon.com-6BE721EE_pwn81ww419gp8!App")
 
     async def play(e):
         await pbc.play()

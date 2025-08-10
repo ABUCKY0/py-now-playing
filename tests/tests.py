@@ -27,12 +27,13 @@ GRAY = "\033[90m"
 async def main_test():
   print("Ensure Media App is open and playing media for this test to work.")
   input("Press Enter to continue...")
-  np = PyNowPlaying(aumid="music.amazon.com-6BE721EE_pwn81ww419gp8!App") # Amazon Music Edge App
+  # np = PyNowPlaying(aumid="music.amazon.com-6BE721EE_pwn81ww419gp8!App") # Amazon Music Edge App
   # np = PyNowPlaying(aumid=(await PyNowPlaying.get_all_aumids_by_name("Media Player"))[0]) # Windows Media Player
   # np = PyNowPlaying(aumid="AmazonMobileLLC.AmazonMusic_kc6t79cpj4tp0!AmazonMobileLLC.AmazonMusic") # Amazon Music UWP App
   # np = PyNowPlaying(aumid="SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify") # Spotify UWP App
 
-  await np.initalize_mediamanager()
+  # await np.initalize_mediamanager()
+  np = await PyNowPlaying.create(aumid="music.amazon.com-6BE721EE_pwn81ww419gp8!App") # Amazon Music Edge App
   media_info: MediaInfo = await np.get_media_info()
   media_timeline: MediaTimeline = await np.get_timeline_properties()
   media_playback: PlaybackInfo = await np.get_playback_info()
@@ -173,8 +174,8 @@ async def main_test():
 
 
     if (await np.get_playback_info()).controls.previous_track is True:
-      print("Giving 10 seconds to allow the next track to play...", end=" ", flush=True)
-      time.sleep(10)
+      print("Giving 5 seconds to allow the next track to play...", end=" ", flush=True)
+      time.sleep(5)
       print(f"{GRAY}Done{RESET}")
 
       print("Skipping to previous track...", end=" ", flush=True)
@@ -254,6 +255,16 @@ async def main_test():
       print(f"{GRAY}Skipping fast forward test because fast forward control is not available{RESET}")
       skipped_count += 1
     
+    try:
+      # Making sure the class throws an error if we try to instantiate it directly
+      print("Testing direct instantiation...", end=" ", flush=True)
+      PyNowPlaying(aumid="music.amazon.com-6BE721EE_pwn81ww419gp8!App")
+      print(f"{RED}FAIL. Direct instantiation should raise an error{RESET}")
+      failure_count += 1
+    except RuntimeError as e:
+      assert str(e) == "Use PyNowPlaying.create() to instantiate this class.", f"{RED}FAIL. Expected RuntimeError with specific message{RESET}"
+      print(f"{GREEN}Success{RESET}")
+      success_count += 1
   except Exception as e:
     print(f"{RED}An error occurred during the tests: {e}{RESET}")
     failure_count = 1
@@ -264,13 +275,8 @@ async def main_test():
     print(f"Skipped due to unavailability: {skipped_count}")
     print(f"Failures: {failure_count}")
     print("---------------------------------------------------------------------------")
-  # # This must be last because we can't resume playback after stopping
-  # print("Stopping media...")
-  # await np.stop()
-  # time.sleep(1)  # Wait for the stop to take effect
-  # playback_info = await np.get_playback_info()
-  # assert playback_info is None or playback_info.playback_status == MediaPlaybackStatus.STOPPED, "Media playback status should be STOPPED"
-
+ 
+ 
 
 asyncio.run(main_test())
 
