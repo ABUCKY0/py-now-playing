@@ -9,7 +9,7 @@ class EnabledControls:
     pause: bool | None = None
     playback_position: bool | None = None
     playback_rate: bool | None = None
-    play : bool | None = None
+    play: bool | None = None
     toggle_play_pause: bool | None = None
     previous_track: bool | None = None
     record: bool | None = None

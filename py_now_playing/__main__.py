@@ -15,8 +15,7 @@ async def run_cli():
   print("\n--------------------------------\n")
   for app in media_apps:
     print(f"{app['Name']} ({app['AppID']})")
-    pnp = PyNowPlaying(aumid=app['AppID'])
-    await pnp.initalize_mediamanager()
+    pnp = await PyNowPlaying.create(aumid=app['AppID'])
     media_name = await pnp.get_media_info()
     if media_name:
       print(f"Currently Playing: \"{media_name.title}\" by \"{media_name.artist}\"")

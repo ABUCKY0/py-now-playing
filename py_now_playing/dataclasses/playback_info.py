@@ -32,7 +32,7 @@ class MediaPlaybackAutoRepeatMode(enum.IntEnum):
 @dataclass
 class PlaybackInfo:
   """Playback information for the current media session.
-  This class hold details such as the playback type, status, rate, auto-repeat mode, and shuffle state.
+  This class holds details such as the playback type, status, rate, auto-repeat mode, and shuffle state.
   Attributes:
     playback_type: Type of media playback (e.g., music, video, image)
     playback_status: Current status of the media playback

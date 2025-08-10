@@ -106,7 +106,7 @@ All returned objects are typed dataclasses:
 
 See [`examples/discordRPC_v4.pyw`](examples/discordRPC_v4.pyw) for a full Discord Rich Presence integration.
 
-See [`examples/controlpanel.py`](exaamples/controlpanel.py) for a basic control panel written with Flet.
+See [`examples/controlpanel.py`](examples/controlpanel.py) for a basic control panel written with Flet.
 ---
 
 ## Troubleshooting
