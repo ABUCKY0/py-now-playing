@@ -8,6 +8,11 @@ import argparse
 async def run_cli():
   parser = argparse.ArgumentParser(description="Run the Now Playing application.")
   media_apps = await PyNowPlaying.get_active_app_user_model_ids()
+
+  print("\nFormat is as follows:\n")
+  print("AppName (AppUserModelID)")
+  print("Currently Playing Media by Artist")
+  print("\n--------------------------------\n")
   for app in media_apps:
     print(f"{app['Name']} ({app['AppID']})")
     pnp = PyNowPlaying(aumid=app['AppID'])
