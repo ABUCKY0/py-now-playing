@@ -15,11 +15,11 @@ from winrt.windows.storage.streams import DataReader
 import logging
 from subprocess import check_output, CREATE_NO_WINDOW
 from json import loads
-from .media_info import MediaInfo
-from .media_timeline import MediaTimeline
-from .playback_info import PlaybackInfo
-from .playback_info import MediaPlaybackStatus
-from .enabled_controls import EnabledControls
+from .dataclasses.media_info import MediaInfo
+from .dataclasses.media_timeline import MediaTimeline
+from .dataclasses.playback_info import PlaybackInfo
+from .dataclasses.playback_info import MediaPlaybackStatus
+from .dataclasses.enabled_controls import EnabledControls
 from PIL import Image
 from datetime import datetime, timedelta, timezone
 logger = logging.getLogger(__name__)
