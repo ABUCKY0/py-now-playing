@@ -6,5 +6,6 @@
 },
 "autopep8.args": [
   "--indent-size=2"
-]
+],
+"cmake.sourceDirectory": "C:/Users/buckn/Documents/py-now-playing/tests/cpp_test_app"
 }

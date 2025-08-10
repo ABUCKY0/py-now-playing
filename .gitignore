@@ -24,3 +24,5 @@ py_now_playing/__pycache__/
 tests/secrets.py
 examples/secrets.py
 .mypy_cache/
+
+tests/cpp_test_app

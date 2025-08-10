@@ -17,10 +17,9 @@ sys.path.extend([
 from py_now_playing import (
     PyNowPlaying, MediaPlaybackStatus
 )
-
 # --- Logging Setup ---
 logging.basicConfig(
-    filename='C:/Users/buckn/Documents/py-now-playing/examples/app2.log',
+    filename='C:/Users/buckn/Documents/py-now-playing/examples/app3.log',
     level=logging.DEBUG,
     format="(%(filename)s:%(lineno)d) [%(levelname)s] - %(asctime)s - %(message)s"
 )
@@ -28,8 +27,13 @@ logger = logging.getLogger(__name__)
 # \***** Console Logger *****
 console = logging.StreamHandler()
 console.setLevel(logging.DEBUG)
-console.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+console.setFormatter(logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
 logger.addHandler(console)
+
+# set logging level of PngImagePlugin.py (PIL)
+pil_logger = logging.getLogger('PIL')
+pil_logger.setLevel(logging.INFO)
 
 # --- Constants ---
 SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/api/token'
@@ -41,6 +45,7 @@ PAUSE_ICON = "https://static-00.iconduck.com/assets.00/pause-button-icon-512x512
 # --- Spotify Token Handling ---
 SPOTIFY_TOKEN = None
 TOKEN_EXPIRATION = None
+
 
 def get_spotify_token():
     """Fetches a new Spotify token if the current one is expired or not set."""
@@ -54,11 +59,13 @@ def get_spotify_token():
             }, timeout=30)
             response_data = response.json()
             SPOTIFY_TOKEN = response_data['access_token']
-            TOKEN_EXPIRATION = datetime.now() + timedelta(seconds=response_data['expires_in'])
+            TOKEN_EXPIRATION = datetime.now(
+            ) + timedelta(seconds=response_data['expires_in'])
         except Exception as e:
             logger.exception("Failed to get Spotify token: %s", e)
             return None
     return SPOTIFY_TOKEN
+
 
 def get_album_art(artist, title):
     """Fetches album art from Spotify based on artist and title."""
@@ -70,7 +77,8 @@ def get_album_art(artist, title):
     headers = {'Authorization': f'Bearer {token}'}
 
     try:
-        response = requests.get(f'{SPOTIFY_SEARCH_URL}?q={query}&type=track&limit=1', headers=headers, timeout=30)
+        response = requests.get(
+            f'{SPOTIFY_SEARCH_URL}?q={query}&type=track&limit=1', headers=headers, timeout=30)
         items = response.json().get('tracks', {}).get('items', [])
         return items[0]['album']['images'][0]['url'] if items else DEFAULT_IMAGE
     except Exception as e:
@@ -78,6 +86,8 @@ def get_album_art(artist, title):
         return DEFAULT_IMAGE
 
 # --- Main Async Function ---
+
+
 async def main():
     """Main function to initialize the playback controls and Discord RPC."""
     # np = PlaybackControls(aumid="ChromeDev._crx_hjlgoickghknhfichlenalencg")
@@ -91,22 +101,29 @@ async def main():
             logger.info("Connected to Discord RPC")
             break
         except (rpc_exceptions.DiscordNotFound, rpc_exceptions.InvalidID) as e:
-            logger.warning("Discord RPC connection failed: %s", e)
+            logger.exception("Discord RPC connection failed: %s", e)
             await asyncio.sleep(5)
+        except Exception as e:
+            logger.exception(
+                "Error in main during first RPC Connect %s", str(e))
 
     prev_state = {}
-
+    was_cleared = False
     while True:
         try:
             media_info = await np.get_media_info()
             media_timeline = await np.get_timeline_properties()
             media_playback = await np.get_playback_info()
 
-            if not (media_info and media_info.title and media_info.artist and media_playback):
+            if not (media_info and media_info.title and media_info.artist and media_playback) and not was_cleared:
                 await rpc.clear()
                 logger.debug("Cleared Discord RPC")
                 prev_state.clear()
+                was_cleared = True
 
+                await asyncio.sleep(1)
+                continue
+            elif not (media_info and media_info.title and media_info.artist and media_playback):
                 await asyncio.sleep(1)
                 continue
 
@@ -118,16 +135,20 @@ async def main():
 
             if state_changed:
                 logger.info("Media state changed. Updating Discord RPC.")
-
-                title = re.sub(r"\[.*?feat\..*?\]", "", media_info.title).removesuffix(" [Explicit]").removesuffix(" [Clean]").strip()
+                was_cleared = False
+                title = re.sub(r"\[.*?feat\..*?\]", "", media_info.title).removesuffix(
+                    " [Explicit]").removesuffix(" [Clean]").strip()
                 artists = re.findall(r'\[.*?feat\.(.*?)\]', media_info.title)
-                artist_names = [media_info.artist] + [a.strip() for feat in artists for a in feat.split('&')]
-                artist = ', '.join([re.sub(r'\[.*?\]', '', a).strip() for a in artist_names])
+                artist_names = [media_info.artist] + [a.strip()
+                                                      for feat in artists for a in feat.split('&')]
+                artist = ', '.join([re.sub(r'\[.*?\]', '', a).strip()
+                                   for a in artist_names])
 
                 album_art_url = get_album_art(artist, title)
                 mini_icon = PLAY_ICON if media_playback.playback_status == MediaPlaybackStatus.PLAYING else PAUSE_ICON
 
-                start_time = int(datetime.now().timestamp() - media_timeline.position.seconds)
+                start_time = int(datetime.now().timestamp() -
+                                 media_timeline.position.seconds)
                 end_time = int(start_time + media_timeline.end_time.seconds)
 
                 await rpc.update(
@@ -151,8 +172,15 @@ async def main():
 
             await asyncio.sleep(1)
 
-        except (rpc_exceptions.DiscordNotFound, rpc_exceptions.InvalidPipe, rpc_exceptions.PipeClosed):
-            await rpc.connect()
+        except (rpc_exceptions.DiscordNotFound, rpc_exceptions.InvalidPipe, rpc_exceptions.PipeClosed, rpc_exceptions.DiscordError, rpc_exceptions.ConnectionTimeout):
+            while True:
+              try:
+                  await rpc.connect()
+                  logger.info("Connected to Discord RPC")
+                  break
+              except (rpc_exceptions.DiscordNotFound, rpc_exceptions.InvalidID) as e:
+                  logger.exception("Discord RPC connection failed: %s", e)
+                  await asyncio.sleep(5)
         except Exception as e:
             logger.exception("Unexpected error: %s", e)
             await asyncio.sleep(2)
