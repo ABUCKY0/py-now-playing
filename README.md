@@ -1,37 +1,59 @@
-# Py Now Playing
+# Py Now Playing ![PyPI](https://img.shields.io/pypi/v/py-now-playing) ![License](https://img.shields.io/badge/license-GPLv3-brightgreen)  
+Py Now Playing lets you read and control media sessions from Windows apps via the Global System Media Transport Controls (GSMTC) API.  
 
-Py Now Playing lets you read and control media sessions from Windows apps via the Global System Media Transport Controls (GSMTC) API.
+### Features
 
-Originally, this began as a personal project to feed the currently playing audio from a specific app into a Discord Rich Presence. The Windows APIs for this aren’t the friendliest, so I built a Python interface around them.
+- Fetch track details (artist, title, album, artwork)  
+- Control playback (play, pause, seek, next/previous)  
+- Access timeline info (position, duration)  
+- Register callbacks for status changes  
 
-> **Note:** This library is **Windows-only** and uses `asyncio`. Most functions must be awaited.
+Originally developed to feed currently playing audio into Discord Rich Presence, Py Now Playing provides an easy Python interface for controlling media apps on Windows.
+
+> **Note:** Windows-only. Uses `asyncio`; all functions are asynchronous and must be awaited.
+
+---
+
+## Installation
+
+```bash
+pip install py-now-playing
+```
 
 ---
 
 ## Importing
 
-You can import everything with:
+You can import everything:
 
 ```python
 from py_now_playing import *
 ```
 
-Or, for clarity, import only what you need:
+Or selectively import only what you need:
 
 ```python
-from py_now_playing import PyNowPlaying, MediaInfo, PlaybackInfo
+from py_now_playing import (
+    MediaPlaybackStatus,
+    MediaPlaybackType,
+    MediaPlaybackAutoRepeatMode,
+    PlaybackInfo,
+    MediaTimeline,
+    PyNowPlaying,
+    MediaInfo
+)
 ```
 
 ---
 
-## Setup
+## Finding App User Model IDs (AUMID)
 
-Initializing a `PyNowPlaying` instance requires the **AppUserModelID (AUMID)** of the target app.
+Every Windows media app has a unique App User Model ID (AUMID). Py Now Playing uses this ID to connect and control the app.
 
-Static helpers are provided:
+### Using Static Functions
 
 ```python
-# Get currently playing apps and their IDs
+# Get currently active media apps and their IDs
 ids = await PyNowPlaying.get_active_app_user_model_ids()
 # -> [{"Name": "Spotify", "AppID": "Spotify_AUMID"}, ...]
 
@@ -39,18 +61,34 @@ ids = await PyNowPlaying.get_active_app_user_model_ids()
 matches = await PyNowPlaying.get_all_aumids_by_name("Spotify")
 ```
 
-> Alternatively, in PowerShell:
->
-> ```powershell
-> Get-StartApps | Select-String "App Name"
-> ```
+### Command Line / PowerShell
+
+- Run Py Now Playing from the command line to list apps:
+
+```bash
+python -m py-now-playing
+```
+
+- Or in PowerShell:
+
+```powershell
+Get-StartApps | Select-String "App Name"
+```
 
 ---
 
-## Initialization
+## Quick Start
 
 ```python
-pnp = await PyNowPlaying.create(aumid="Spotify_AUMID")
+import asyncio
+from py_now_playing import PyNowPlaying
+
+async def main():
+    pnp = await PyNowPlaying.create(aumid="Spotify_AUMID")
+    media = await pnp.get_media_info()
+    print(media.artist, media.title)
+
+asyncio.run(main())
 ```
 
 ---
@@ -73,14 +111,15 @@ await pnp.next_track()
 await pnp.seek(60)  # Seek to 1 minute
 ```
 
-### Get Timeline Properties
+### Access Timeline Properties
 
 ```python
 timeline = await pnp.get_timeline_properties()
+# timeline contains position, start/end time, and seek times (see MediaTimeline dataclass)
 print(timeline.position, timeline.end_time)
 ```
 
-### Register for Playback Info Changes
+### Register a Playback Callback
 
 ```python
 def on_playback_info_changed(info):
@@ -91,33 +130,34 @@ pnp.register_playback_info_changed_callback(on_playback_info_changed)
 
 ---
 
-## Dataclasses
+## Dataclasses Overview
 
-All returned objects are typed dataclasses:
-
-- **`MediaInfo`** – Artist, title, album, genres, thumbnail, etc.
-- **`PlaybackInfo`** – Playback status, type, rate, repeat/shuffle state, controls.
-- **`MediaTimeline`** – Position, start/end time, seek times.
-- **`EnabledControls`** – Which controls are available for the current app.
+| Class | Description |
+|-------|-------------|
+| **MediaInfo** | Artist, title, album, genres, artwork, etc. |
+| **PlaybackInfo** | Playback status, type, rate, repeat/shuffle state, available controls |
+| **MediaTimeline** | Position, start/end time, seek times |
+| **EnabledControls** | Which controls are available for the current app |
 
 ---
 
 ## Advanced Example: Discord RPC
 
-See [`examples/discordRPC_v4.pyw`](examples/discordRPC_v4.pyw) for a full Discord Rich Presence integration.
+- [\`examples/discordRPC_v4.pyw\`](examples/discordRPC_v4.pyw) – full Discord Rich Presence integration  
+- [\`examples/controlpanel.py\`](examples/controlpanel.py) – basic control panel using Flet  
 
-See [`examples/controlpanel.py`](examples/controlpanel.py) for a basic control panel written with Flet.
 ---
 
 ## Troubleshooting
 
-- Ensure the target media app is open and actively playing.
-- Works only on Windows 10/11 (uses WinRT APIs).
-- All calls are **async**; use `await` inside an async event loop.
+- Ensure the target media app is open and actively playing.  
+- Works only on Windows 10/11 (uses WinRT APIs).  
+- All calls are async; use `await` inside an async event loop.  
+- If no media info is returned, verify that the app is playing media and the AUMID is correct.  
 
 ---
 
-## Contributing
+## License
 
-Pull requests, issues, and feature suggestions are welcome.  
-Check the code for docstrings and usage examples.
+This project is licensed under the **GNU General Public License v3.0**.  
+See the [LICENSE](LICENSE) file for details.
