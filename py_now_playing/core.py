@@ -70,17 +70,19 @@ class PyNowPlaying:
     obj._manager = media_manager
 
     obj._user_timeline_properties_callback: Callable[[
-      TimelinePropertiesChangedEventArgs], None] | None = None
+        TimelinePropertiesChangedEventArgs], None] | None = None
     obj._user_playback_info_callback: Callable[[
-      PlaybackInfoChangedEventArgs], None] | None = None
+        PlaybackInfoChangedEventArgs], None] | None = None
     obj._user_media_properties_callback: Callable[[
-      MediaPropertiesChangedEventArgs], None] | None = None
-    
+        MediaPropertiesChangedEventArgs], None] | None = None
+
     return obj
+
   def __init__(self, *args, **kwargs):
     raise RuntimeError(
         "Direct instantiation of PyNowPlaying is prohibited because async initialization is required. Use PyNowPlaying.create() to instantiate this class.")
   #### TIMELINE/MEDIA/PLAYBACK CONTROLS ####
+
   async def pause(self) -> bool:
     """Pause the media
 
@@ -242,7 +244,7 @@ class PyNowPlaying:
     if session is not None:
       return await session.try_change_auto_repeat_mode_async(mode)
     return False
-  
+
   async def seek(self, position: int) -> bool:
     """Changes the playback position (Time Elapsed)
 
@@ -257,7 +259,7 @@ class PyNowPlaying:
     if session is not None:
       return await session.try_change_playback_position_async(int(position * 10000000))
     return False
-  
+
   async def channel_up(self) -> bool:
     """Sends a channel up command to the media session.
 
@@ -270,7 +272,7 @@ class PyNowPlaying:
     if session is not None:
       return await session.try_change_channel_up_async()
     return False
-  
+
   async def channel_down(self) -> bool:
     """Sends a channel down command to the media session.
 
@@ -283,9 +285,9 @@ class PyNowPlaying:
     if session is not None:
       return await session.try_change_channel_down_async()
     return False
-  
-  
+
   #### GETTERS ####
+
   async def get_timeline_properties(self) -> MediaTimeline | None:
     """Gets the timeline properties of the media.
 
@@ -321,12 +323,13 @@ class PyNowPlaying:
     media_timeline: MediaTimeline | None = await self.get_timeline_properties()
     playback_status: PlaybackInfo | None = await self.get_playback_info()
     if media_timeline is not None and playback_status is not None:
-      # 
+      #
       if playback_status.playback_status is not None and playback_status.playback_status == MediaPlaybackStatus.PAUSED:
         return media_timeline
       last_updated_time = media_timeline.last_updated_time
       now = datetime.now(timezone.utc)
-      true_time_since_last_update = (now - last_updated_time) + media_timeline.position
+      true_time_since_last_update = (
+          now - last_updated_time) + media_timeline.position
       # add to position
       media_timeline.position = true_time_since_last_update
     return media_timeline
@@ -353,12 +356,13 @@ class PyNowPlaying:
     """
     sessions = self._manager.get_sessions()
     session = next(filter(lambda s: s.source_app_user_model_id ==
-                    self.aumid, sessions), None)
+                          self.aumid, sessions), None)
     info_dict = None
     if session is not None:
       info = await session.try_get_media_properties_async()
       if info is not None:
-        info_dict = {song_attr: getattr(info, song_attr) for song_attr in dir(info) if not song_attr.startswith('_')}
+        info_dict = {song_attr: getattr(info, song_attr) for song_attr in dir(
+            info) if not song_attr.startswith('_')}
         info_dict['genres'] = list(info_dict['genres'])
 
     if self.aumid is not None:
@@ -417,8 +421,8 @@ class PyNowPlaying:
       return pi
     return None
 
-
   #### IMAGE/APPUSERMODELID UTILITIES ####
+
   async def thumbnail_to_image(self, thumbnail) -> Image.Image | None:
     """Converts a thumbnail to a PIL Image.
 
@@ -480,76 +484,87 @@ class PyNowPlaying:
       return None
     return matches
 
-  #### CALLBACK REGISTRATION ####
-  def _internal_playback_info_changed_callback(self, sender: GlobalSystemMediaTransportControlsSession, args: PlaybackInfoChangedEventArgs) -> None:
-    """Internal callback for playback info changes.
+#### CALLBACK REGISTRATION ####
 
-    Args:
-        sender (GlobalSystemMediaTransportControlsSession): The media session.
-        args (PlaybackInfoChangedEventArgs): The event arguments.
-    
-    :meta private:
-    """
-    reformatted_data = PlaybackInfo()
-    reformatted_data.playback_type = sender.get_playback_info().playback_type
-    reformatted_data.playback_status = sender.get_playback_info().playback_status
-    reformatted_data.playback_rate = sender.get_playback_info().playback_rate
-    reformatted_data.auto_repeat_mode = sender.get_playback_info().auto_repeat_mode
-    reformatted_data.is_shuffle_active = sender.get_playback_info().is_shuffle_active
-    self._user_playback_info_callback(sender, reformatted_data)
-    return
+  def _internal_playback_info_changed_callback(self, sender, args):
+    """Internal callback for playback info changes."""
+    async def task():
+      playback_info = sender.get_playback_info()
+      if playback_info is None:
+        return
 
-  def _internal_timeline_properties_changed_callback(self, sender: GlobalSystemMediaTransportControlsSession, args: TimelinePropertiesChangedEventArgs) -> None:
-    """Internal callback for timeline properties changes.
+      reformatted_data = PlaybackInfo()
+      reformatted_data.playback_type = playback_info.playback_type
+      reformatted_data.playback_status = playback_info.playback_status
+      reformatted_data.playback_rate = playback_info.playback_rate
+      reformatted_data.auto_repeat_mode = playback_info.auto_repeat_mode
+      reformatted_data.is_shuffle_active = playback_info.is_shuffle_active
 
-    Args:
-        sender (GlobalSystemMediaTransportControlsSession): The media session.
-        args (TimelinePropertiesChangedEventArgs): The event arguments.
+      controls = EnabledControls()
+      controls.channel_down = playback_info.controls.is_channel_down_enabled
+      controls.channel_up = playback_info.controls.is_channel_up_enabled
+      controls.fast_forward = playback_info.controls.is_fast_forward_enabled
+      controls.next_track = playback_info.controls.is_next_enabled
+      controls.pause = playback_info.controls.is_pause_enabled
+      controls.playback_position = playback_info.controls.is_playback_position_enabled
+      controls.playback_rate = playback_info.controls.is_playback_rate_enabled
+      controls.play = playback_info.controls.is_play_enabled
+      controls.toggle_play_pause = playback_info.controls.is_play_pause_toggle_enabled
+      controls.previous_track = playback_info.controls.is_previous_enabled
+      controls.record = playback_info.controls.is_record_enabled
+      controls.repeat = playback_info.controls.is_repeat_enabled
+      controls.rewind = playback_info.controls.is_rewind_enabled
+      controls.shuffle = playback_info.controls.is_shuffle_enabled
+      controls.stop = playback_info.controls.is_stop_enabled
+      reformatted_data.controls = controls
 
-    :meta private:
-    """
-    reformatted_data = MediaTimeline()
-    reformatted_data.start_time = sender.get_timeline_properties().start_time
-    reformatted_data.end_time = sender.get_timeline_properties().end_time
-    reformatted_data.max_seek_time = sender.get_timeline_properties().max_seek_time
-    reformatted_data.position = sender.get_timeline_properties().position
-    reformatted_data.min_seek_time = sender.get_timeline_properties().min_seek_time
-    reformatted_data.last_updated_time = sender.get_timeline_properties().last_updated_time
-    if self._user_timeline_properties_callback:
-      self._user_timeline_properties_callback(sender, reformatted_data)
+      if self._user_playback_info_callback:
+        self._user_playback_info_callback(sender, reformatted_data)
 
-  def _internal_media_properties_changed_callback(self, sender: GlobalSystemMediaTransportControlsSession, args: MediaPropertiesChangedEventArgs) -> None:
-    """Internal callback for media properties changes.
+    asyncio.create_task(task())
 
-    Args:
-        sender (GlobalSystemMediaTransportControlsSession): The media session.
-        args (MediaPropertiesChangedEventArgs): The event arguments.
+  def _internal_timeline_properties_changed_callback(self, sender, args):
+    """Internal callback for timeline properties changes."""
+    async def task():
+      timeline = sender.get_timeline_properties()
+      if timeline is None:
+        return
 
-    :meta private:
-    """
-    reformatted_data = MediaInfo()
+      reformatted_data = MediaTimeline()
+      reformatted_data.start_time = timeline.start_time
+      reformatted_data.end_time = timeline.end_time
+      reformatted_data.max_seek_time = timeline.max_seek_time
+      reformatted_data.position = timeline.position
+      reformatted_data.min_seek_time = timeline.min_seek_time
+      reformatted_data.last_updated_time = timeline.last_updated_time
 
-    async def get_media_properties() -> MediaInfo:
-      return await sender.try_get_media_properties_async()
+      if self._user_timeline_properties_callback:
+        self._user_timeline_properties_callback(sender, reformatted_data)
 
-    info = asyncio.create_task(get_media_properties())
+    asyncio.create_task(task())
 
-    reformatted_data.artist = info.artist
-    reformatted_data.title = info.title
-    reformatted_data.album_title = info.album_title
-    reformatted_data.album_artist = info.album_artist
-    reformatted_data.album_track_count = info.album_track_count
-    reformatted_data.track_number = info.track_number
-    reformatted_data.genres = list(info.genres)
-    reformatted_data.playback_type = info.playback_type
+  def _internal_media_properties_changed_callback(self, sender, args):
+    """Internal callback for media properties changes."""
+    async def task():
+      info = await sender.try_get_media_properties_async()
+      if info is None:
+        return
 
-    async def get_thumbnail():
-      return await self.thumbnail_to_image(info.thumbnail)
+      reformatted_data = MediaInfo()
+      reformatted_data.artist = info.artist
+      reformatted_data.title = info.title
+      reformatted_data.album_title = info.album_title
+      reformatted_data.album_artist = info.album_artist
+      reformatted_data.album_track_count = info.album_track_count
+      reformatted_data.track_number = info.track_number
+      reformatted_data.genres = list(info.genres)
+      reformatted_data.playback_type = info.playback_type
+      reformatted_data.thumbnail = await self.thumbnail_to_image(info.thumbnail)
 
-    reformatted_data.thumbnail = asyncio.create_task(get_thumbnail())
+      if self._user_media_properties_callback:
+        self._user_media_properties_callback(sender, reformatted_data)
 
-    if self._user_media_properties_callback:
-      self._user_media_properties_callback(sender, reformatted_data)
+    asyncio.create_task(task())
 
   def register_playback_info_changed_callback(self, callback: Callable[[GlobalSystemMediaTransportControlsSession, PlaybackInfo], None]) -> None:
     """Registers a callback for playback info changes.
@@ -603,7 +618,7 @@ class PyNowPlaying:
           self._internal_playback_info_changed_callback)
     self._user_playback_info_callback = None
     return
-  
+
   def deregister_timeline_properties_changed_callback(self) -> None:
     """Deregisters the timeline properties changed callback."""
     sessions = self._manager.get_sessions()
@@ -614,7 +629,7 @@ class PyNowPlaying:
           self._internal_timeline_properties_changed_callback)
     self._user_timeline_properties_callback = None
     return
-  
+
   def deregister_media_properties_changed_callback(self) -> None:
     """Deregisters the media properties changed callback."""
     sessions = self._manager.get_sessions()

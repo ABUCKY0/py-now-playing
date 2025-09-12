@@ -262,7 +262,8 @@ async def main_test():
       print(f"{RED}FAIL. Direct instantiation should raise an error{RESET}")
       failure_count += 1
     except RuntimeError as e:
-      assert str(e) == "Use PyNowPlaying.create() to instantiate this class.", f"{RED}FAIL. Expected RuntimeError with specific message{RESET}"
+      assert str(
+          e) == "Direct instantiation of PyNowPlaying is prohibited because async initialization is required. Use PyNowPlaying.create() to instantiate this class.", f"{RED}FAIL. Expected RuntimeError with specific message{RESET}"
       print(f"{GREEN}Success{RESET}")
       success_count += 1
   except Exception as e:
