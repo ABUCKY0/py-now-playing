@@ -33,7 +33,7 @@ Static helpers are provided:
 ```python
 # Get currently playing apps and their IDs
 ids = await PyNowPlaying.get_active_app_user_model_ids()
-# -> [{"Name": "Spotify", "AppID": "Spotify.exe"}, ...]
+# -> [{"Name": "Spotify", "AppID": "Spotify_AUMID"}, ...]
 
 # Find all apps matching a name
 matches = await PyNowPlaying.get_all_aumids_by_name("Spotify")
@@ -50,7 +50,7 @@ matches = await PyNowPlaying.get_all_aumids_by_name("Spotify")
 ## Initialization
 
 ```python
-pnp = await PyNowPlaying.create("Spotify.exe")
+pnp = await PyNowPlaying.create(aumid="Spotify_AUMID")
 ```
 
 ---
