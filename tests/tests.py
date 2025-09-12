@@ -14,7 +14,7 @@ from winrt.windows.media.control import (
 )
 
 from datetime import datetime, timedelta
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 import asyncio
 
@@ -277,6 +277,6 @@ async def main_test():
     print("---------------------------------------------------------------------------")
  
  
-
-asyncio.run(main_test())
+if __name__ == '__main__':
+  asyncio.run(main_test())
 

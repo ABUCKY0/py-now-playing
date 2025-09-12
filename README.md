@@ -142,7 +142,8 @@ pnp.register_playback_info_changed_callback(on_playback_info_changed)
 ---
 
 ## Advanced Example: Discord RPC
-
+> [!NOTE]
+> None of these examples are guaranteed to work on your system because I hardcoded file paths for logs and paths. They are shown as examples *only*.
 - [\`examples/discordRPC_v4.pyw\`](examples/discordRPC_v4.pyw) – full Discord Rich Presence integration  
 - [\`examples/controlpanel.py\`](examples/controlpanel.py) – basic control panel using Flet  
 

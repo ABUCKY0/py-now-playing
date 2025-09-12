@@ -79,7 +79,7 @@ class PyNowPlaying:
     return obj
   def __init__(self, *args, **kwargs):
     raise RuntimeError(
-      "Use PyNowPlaying.create() to instantiate this class.")
+        "Direct instantiation of PyNowPlaying is prohibited because async initialization is required. Use PyNowPlaying.create() to instantiate this class.")
   #### TIMELINE/MEDIA/PLAYBACK CONTROLS ####
   async def pause(self) -> bool:
     """Pause the media
@@ -532,7 +532,7 @@ class PyNowPlaying:
     async def get_media_properties() -> MediaInfo:
       return await sender.try_get_media_properties_async()
 
-    info = asyncio.run(get_media_properties())
+    info = asyncio.create_task(get_media_properties())
 
     reformatted_data.artist = info.artist
     reformatted_data.title = info.title
@@ -546,7 +546,7 @@ class PyNowPlaying:
     async def get_thumbnail():
       return await self.thumbnail_to_image(info.thumbnail)
 
-    reformatted_data.thumbnail = asyncio.run(get_thumbnail())
+    reformatted_data.thumbnail = asyncio.create_task(get_thumbnail())
 
     if self._user_media_properties_callback:
       self._user_media_properties_callback(sender, reformatted_data)
