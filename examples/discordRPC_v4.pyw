@@ -38,9 +38,9 @@ pil_logger.setLevel(logging.INFO)
 # --- Constants ---
 SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/api/token'
 SPOTIFY_SEARCH_URL = 'https://api.spotify.com/v1/search'
-DEFAULT_IMAGE = "https://pro2-bar-s3-cdn-cf4.myportfolio.com/42020405547ae2dc93d34e8df7965fc4/5d5b55e2-c1b4-46cb-a027-6a21bee9de3f_rw_1920.gif?h=85babbd0e5d4aa7c618295a359c1811f"
-PLAY_ICON = "https://thumbs.dreamstime.com/b/white-play-button-middle-black-square-white-play-button-middle-black-square-291113889.jpg"
-PAUSE_ICON = "https://static-00.iconduck.com/assets.00/pause-button-icon-512x512-uec65jbo.png"
+DEFAULT_IMAGE = "https://static.abucky.dev/api/cdn/download/images/amazon_music_animated.gif"
+PLAY_ICON = "https://static.abucky.dev/api/cdn/download/images/playing-icon.png"
+PAUSE_ICON = "https://static.abucky.dev/api/cdn/download/images/paused-icon.png"
 
 # --- Spotify Token Handling ---
 SPOTIFY_TOKEN = None
@@ -143,7 +143,7 @@ async def main():
                                    for a in artist_names])
 
                 album_art_url = get_album_art(artist, title)
-                mini_icon = PLAY_ICON if media_playback.playback_status == MediaPlaybackStatus.PLAYING else PAUSE_ICON
+                mini_icon = PLAY_ICON if media_playback.playback_status == MediaPlaybackStatus.PLAYING else PAUSE_ICON #"https://static.abucky.dev/api/cdn/download/images/amazon-music-circle.png" #
 
                 start_time = int(datetime.now().timestamp() -
                                  media_timeline.position.seconds)
@@ -159,7 +159,7 @@ async def main():
                     activity_type=ActivityType.LISTENING,
                     start=start_time,
                     end=end_time,
-                    name=f"{artist}",
+                    name=f"{title} by {artist}",
                 )
 
                 prev_state.update({
