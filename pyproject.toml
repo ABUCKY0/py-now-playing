@@ -10,7 +10,7 @@ license = "GNU General Public License v3 (GPLv3)"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.14"
-pillow = "^10.1.0"
+pillow = ">=10.1,<13.0"
 winrt-Windows-Media = "^2.3.0"
 winrt-windows-media-control = "^2.3.0"
 winrt-windows-storage = "^2.3.0"
